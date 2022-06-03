@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <script>
+        //Purpose: Peer assessment of assessment setup form
+
+        //v0.1 2019-10-31 Initial version
+        //v0.2 2019-11-06 Creation of grade item
+		//v0.3 2019-11-15 option for comment boxes, end date for voting
+		//v0.4 2020-01-28 update URL for script tag to be dynamically generated to make script more portable
+		//v1.4 2020-01-28 version update to match .js file. Accessibility improvements.
+		//v1.41 2020-07-13 add banner pointing to content area. Some tidying up.
+		//v1.5 2020-07-20 Portability improvements. Role selection array.
+		//v1.5.1 2020-09-25 Fixed date picker UTC offset
+		//v1.5.2 2020-09-30 Module name match fixed
+		
+		
+		
+		
+		//configuration variables
+		
+		
+		defaultmodule="Assessment"
+		
+		defaultinstructions="Peer Assessment allows you to adjust the scores of your team members to reflect their contribution to the group. Everybody starts off with 100 points per category, but you can reallocate these marks to other team members. Each column must add up to 100 x the number of group members.\r\n\r\nStaff involved in the module will be able to see your ratings but your peers will only see them in an anonymous form."
+		
+		nameprefix="(EX) "
+		
+		studentroles=["Student","ReadOnly"]
+		
+		</script>
+
+
+
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<title>Peer Assessment Setup</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Bootstrap CDN CSS -->
+	<link rel="stylesheet" href="assets/thirdpartylib/bootstrap-3.3.6/css/bootstrap.min.css">
+
+	<!-- Course Styles -->
+	<link rel="stylesheet" href="assets/css/main.min.css"> 
+	
+	<meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Peer Review</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CDN CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!-- Font Awesome CDN CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Course Styles -->
+    <link rel="stylesheet" href="assets/css/main.min.css"> </head>
+    <!-- Data Tables CDN CSS -->
+
+
+
+	
+
+	
+	<!-- jQuery CDN w/ local fallback (Bootstrap Dependency) -->
+
+<script>
+        window.jQuery || document.write('<script src="/assets/thirdpartylib/jquery/jquery-1.11.3.min.js"><\/script>')
+    </script>
+<!-- Bootstrap CDN JS -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<!-- SVG Fallback JS -->
+<script src="assets/thirdpartylib/svg4everybody/svg4everybody.min.js"></script>
+<!-- Course Scripts -->
+<script src="assets/js/main.min.js"></script>
+
+
+
+
+
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<!--  <link rel="stylesheet" href="resources/demos/style.css">-->
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/r-2.2.3/datatables.min.js"></script>
+	  
+	</head>
+
+<body class="content layout-2" role="document">
+	<div class="container-fluid">
+		<main>
+			
+			<div class="row">
+				<div class="col-xs-12 col-sm-offset-2 col-sm-8">
+					
+					<div id="peeroutput"></div>
+<div id="outputdiv"></div>
+<div id="outputdiv2"></div>
+
+<script>
+
+//set up filename for main script
+
+var scriptfilename="peerreview-100-include__v1.5.js"
+
+//work out the location for the main script
+
+var scripturl=location.href.replace(/peersetup.htm(.+)/i,"")
+scripturl=scripturl.replace(/(.+)\/shared/,"/shared")
+
+assetspath=scripturl+"assets"
+scripturl=scripturl+scriptfilename
+
+console.log(assetspath)
+console.log(location.href)
+
+
+
+
+
+
+
+if (typeof jQuery.ui !== 'undefined'){
+console.log("loaded")
+}else{
+console.log("not loaded")
+}
+
+
+urlsplit_a=location.href.split("?");
+console.log(urlsplit_a)
+
+urlsplit_b=urlsplit_a[1].split("&")
+
+console.log(urlsplit_b)
+var OrgUnitId=urlsplit_b[0]
+var OrgUnitCode=urlsplit_b[1]
+
+//for testing within a module content
+//OrgUnitId={OrgUnitId}
+//OrgUnitCode="{OrgUnitCode}"
+
+
+
+var token;
+var RoleName;
+var GroupCategoryId
+var targetmodule
+var targetmodulename
+var AssignmentId
+var GradeItemId
+var enddate
+
+ //get user role via API as we can't use replace strings here
+
+        roleurl = "/d2l/api/lp/1.22/enrollments/myenrollments/"+OrgUnitId+"/access"
+
+        var mygroup
+        var classlistresponse
+        var groupresponse
+        var whoamiresponse
+		var groupsize
+
+        $.ajax({
+            method: "GET",
+            url: roleurl,
+            dataType: 'json',
+            error: function(roleresponse) {
+	$("#outputdiv").html("<p>Unable to open module classlist.</p>");
+	console.log(roleresponse)
+	console.log(roleurl)
+			
+			},
+            success: function(roleresponse) {
+                RoleName = roleresponse.Access.ClasslistRoleName;
+                if (RoleName=="Student"){
+				$("#outputdiv").html("<p>This page is not available to your current role in this module</p>");
+				
+				
+				}else{
+				gettoken()
+
+
+
+
+
+
+				
+				}//end else gettoken
+},
+            error: function(roleresponse) {
+				$("#outputdiv").html("<p>Unable to access data from Brightspace. This can happen when you log in using an address that ends in brightspace.com rather than the official version.</p>");
+
+
+}
+})				
+
+ 
+
+function gettoken(){
+
+
+
+
+
+
+ $.ajax({
+                    method: "GET",
+                    url: "/d2l/lp/auth/xsrf-tokens",
+                    success: function(ltoken) {
+                        //console.log(ltoken)
+                        token = ltoken;
+formsetup()						
+	} //end token success
+				})//end ajax token
+
+}
+
+
+function formsetup(){
+
+
+$("#outputdiv").append("<h1>Peer Assessment of Group Contributions</h1>");
+$("#outputdiv").append("<p>This screen is used to set up a peer assessment exercise where groups of students assess the contribution of their group members.</p>");
+
+$("#outputdiv").append("<div class=\"well\"><p>To view responses on peer assessments which have already been set up, you need to use the link in the Content area. By default, this would have been created in the "+defaultmodule+" area if present.</p>");
+
+$("#outputdiv").append("<div id=\"activitynamewrapper\" class=\"validationwrapper\"><label for=\"activityname\"><h2>Activity Name</h2><p>eg Peer Assessment</label><br /><input type=\"text\" size=\"80\" value=\"\" id=\"activityname\" /></p></div>")
+$("#outputdiv").append("<div id=\"enddatewrapper\" class=\"validationwrapper\"><label for=\"enddate\"><h3>End Date</h3></label><p>Last date for submitting peer feedback<br /><input type=\"text\"  value=\"\" id=\"enddate\" />&nbsp;<input type=\"hidden\" id=\"hiddendate\" aria-label=\"\" /><select id=\"endtime\" aria-label=\"End time\"><option value=\"16:00\">16:00</option><option value=\"00:30\">00:30</option><option value=\"01:00\">01:00</option><option value=\"01:30\">01:30</option><option value=\"02:00\">02:00</option><option value=\"02:30\">02:30</option><option value=\"03:00\">03:00</option><option value=\"03:30\">03:30</option><option value=\"04:00\">04:00</option><option value=\"04:30\">04:30</option><option value=\"05:00\">05:00</option><option value=\"05:30\">05:30</option><option value=\"06:00\">06:00</option><option value=\"06:30\">06:30</option><option value=\"07:00\">07:00</option><option value=\"07:30\">07:30</option><option value=\"08:00\">08:00</option><option value=\"08:30\">08:30</option><option value=\"09:00\">09:00</option><option value=\"09:30\">09:30</option><option value=\"10:00\">10:00</option><option value=\"10:30\">10:30</option><option value=\"11:00\">11:00</option><option value=\"11:30\">11:30</option><option value=\"12:00\">12:00</option><option value=\"12:30\">12:30</option><option value=\"13:00\">13:00</option><option value=\"13:30\">13:30</option><option value=\"14:00\">14:00</option><option value=\"14:30\">14:30</option><option value=\"15:00\">15:00</option><option value=\"15:30\">15:30</option><option value=\"16:00\">16:00</option><option value=\"16:30\">16:30</option><option value=\"17:00\">17:00</option><option value=\"17:30\">17:30</option><option value=\"18:00\">18:00</option><option value=\"18:30\">18:30</option><option value=\"19:00\">19:00</option><option value=\"19:30\">19:30</option><option value=\"20:00\">20:00</option><option value=\"20:30\">20:30</option><option value=\"21:00\">21:00</option><option value=\"21:30\">21:30</option><option value=\"22:00\">22:00</option><option value=\"22:30\">22:30</option><option value=\"23:00\">23:00</option><option value=\"23:30\">23:30</option><option value=\"23:59\">23:59</option></select></p></div>")
+
+
+if (typeof jQuery.ui !== 'undefined'){
+console.log("loaded")
+}else{
+console.log("not loaded")
+}
+
+$("#enddate").datepicker({
+constrainInput: true,
+dateFormat:"dd/mm/yy",
+altField: "#hiddendate",
+altFormat: "yy-mm-dd",
+minDate:0
+
+})
+
+
+$("#outputdiv").append("<div id=\"groupwrapper\" class=\"validationwrapper\"><h3>Group Category</h3><div id=\"groupsection\"></div></div>")
+
+getgroups();
+
+$("#outputdiv").append("<div id=\"questionswrapper\" class=\"validationwrapper\"><h3>Assessment Criteria</h3><div id=\"questionfields\"></div></div<")
+
+questions()
+
+
+$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Assessment</h3><p><input type=\"checkbox\" id=\"selfassess\" /> Students should assess their own contribution as well as other group members</p></label></div>")
+
+$("#outputdiv").append("<div id=\"commentswrapper\" class=\"validationwrapper\"><label for=\"commentfields\"><h3>Student comments</h3><p><input type=\"checkbox\" id=\"commentfields\" /> Provide a space for students to explain their marks. You can choose to publish these as feedback, in anonymous form, when you review the feedback.</p></div>")
+
+$("#outputdiv").append("<div id=\"instructionswrapper\" class=\"validationwrapper\"><label for=\"instructions\"><h3>Instructions to students </h3></label><p><textarea cols=\"80\" rows=\"6\" id=\"instructions\" >"+defaultinstructions+"</textarea></div>")
+ 
+$("#outputdiv").append("<p id=\"buttonwrapper\"><input type=\"button\" id=\"submitbutton\" onclick=\"validate()\" value=\"Set up the Peer Assessment\"/></p><p id=\"statusmsg\"></p>")
+$("#outputdiv").append("<p>&nbsp;</p>")
+
+}
+
+
+
+
+
+function getgroups(){
+
+
+groupurl="/d2l/api/lp/1.22/"+OrgUnitId+"/groupcategories/"
+
+
+
+
+ $.ajax({
+            method: "GET",
+            url: groupurl,
+            dataType: 'json',
+            success: function(groupresponse) {
+ 
+ 
+ 
+$("#groupsection").html("<p>Select the Group Category which contains the groups for this exercise. Use <a href=\"/d2l/lms/group/group_list.d2l?ou="+OrgUnitId+"&sp=1\" target=\"_top\">Manage Groups</a> if you need to set this up.</p>"); 
+ 
+if(groupresponse.length>0){
+
+$("#groupsection").append("<form><div id=\"setupform\"><table class=\"table table-responsive\" id=\"grouptable\">");
+
+for (g=0;g<groupresponse.length;g++){
+
+$("#grouptable").append("<tr><td><input type=\"radio\" name=\"GroupCategoryId\" value=\""+groupresponse[g].GroupCategoryId+"\" id=\"radio-"+groupresponse[g].GroupCategoryId+"\"onchange=\"enablesubmit()\"></input></td><td><label for=\"radio-"+groupresponse[g].GroupCategoryId+"\">"+groupresponse[g].Name+"</label></td></tr>")
+
+
+
+} //end for
+
+$("#groupsection").append("</table>");
+
+
+
+}else{
+
+$("#groupsection").append("<p><strong>No group categories have been set up</strong></p>");
+
+} //end if length
+ 
+ 
+ } //end success
+}) //end ajax				
+
+}//end function getgroups				
+				
+				
+				function enablesubmit(){
+				
+$("#submitbutton").show();
+				
+				}
+				
+				
+function questions(){
+
+
+
+console.log("questions")
+
+GroupCategoryId=$("input[name='GroupCategoryId']:checked").val()
+
+console.log(GroupCategoryId)
+
+
+//now create the questions list
+
+
+
+$("#questionfields").append("<p>Enter the criteria you want students to assess each other on. Ideally, please keep these brief.</p>");
+
+$("#questionfields").append("<p><input type=\"text\" value=\"\" class=\"questioninput\"  size=\"80\"\"/ aria-label=\"Assessment criteria text\"></p><div id=\"extraquestions\"></div>");
+
+$("#questionfields").append("<p><input type=\"button\" onclick=\"addfield()\" value=\"Add another criterion\" /></p>");
+
+
+$("#questionbutton").hide()
+}				
+
+function validatequestions(){
+
+
+
+
+
+}
+				
+
+function addfield(){
+
+$("#extraquestions").append("<p><input type=\"text\" value=\"\" size=\"80\" class=\"questioninput\" \"/></p>");
+
+}
+
+
+
+
+				
+				
+				
+function validate(){
+
+//hide the button to prevent multi-click
+
+
+$("#submitbutton").hide()
+$("#statusmsg").html("Please wait...")
+
+//clean($("#activityname").val())
+
+//reset any previous
+$(".validationwrapper").css("background-color","#ffffff")
+//$("#statusmsg").html("")
+
+validationerrors=0;
+
+if($("#activityname").val().length==0){
+validationerrors++;
+
+$("#statusmsg").append("<p>Activity Name cannot be blank</p>")
+
+$("#activitynamewrapper").css("background-color","#f098e5")
+
+}
+
+//enddate
+
+if($("#enddate").val().length==0){
+validationerrors++;
+
+$("#statusmsg").append("<p>End Date cannot be blank</p>")
+
+$("#enddatewrapper").css("background-color","#f098e5")
+
+}
+
+
+
+//groups
+
+GroupCategoryId=$("input[name='GroupCategoryId']:checked").val()
+
+if (isNaN(GroupCategoryId)){
+validationerrors++;
+
+$("#statusmsg").append("<p>You must select a Group Category</p>")
+$("#groupwrapper").css("background-color","#f098e5")
+}
+
+
+//questions
+
+
+validationstr="";
+
+$( ".questioninput" ).each(function( index,value ) {
+  validationstr=validationstr+($( this ).val() );
+  
+});
+
+if (validationstr.length==0){
+
+validationerrors++;
+
+$("#statusmsg").append("<p>You must create at least one Assessment Criteria item</p>")
+$("#questionswrapper").css("background-color","#f098e5")
+
+
+}
+
+
+if(validationerrors==0){
+
+validationok()
+}else{
+
+
+//unhide the submit button
+
+$("#submitbutton").show()
+
+}
+
+
+}
+
+
+
+function nl2br (str, is_xhtml) {
+    if (typeof str === 'undefined' || str === null) {
+        return '';
+    }
+    var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
+//    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
+
+    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, breakTag);
+
+}
+
+
+
+
+function clean(input){
+console.log(input)
+output=nl2br(input,true)
+
+output=output.replace(/"/g,'\\"')
+output=output.replace(/'/g,"\\'")
+output=output.replace(/\//g,"-")
+console.log(output)
+
+
+//console.log(output)
+
+return output;
+}
+
+
+
+
+
+function validationok(){
+
+
+//let's work out which module (aka unit) we're going to create the post in
+
+//get the root modules list
+
+$.ajax({
+            method: "GET",
+            url: "/d2l/api/le/1.37/"+OrgUnitId+"/content/root/",
+            dataType: 'json',
+            success: function(rootmods) {
+console.log(rootmods)
+			//loop through them. Do we have one that contains the default's name?
+			
+			//set a default of the first module
+			targetmodule=rootmods[0].Id
+			targetmodulename=rootmods[0].Title
+			
+			for (r=0;r<rootmods.length;r++){
+			console.log(rootmods[r].Title)
+			
+			lctitle=rootmods[r].Title.toLowerCase()
+			
+			if(lctitle.indexOf(defaultmodule.toLowerCase())!=-1){
+			targetmodule=rootmods[r].Id
+			targetmodulename=rootmods[r].Title
+						
+			}
+			
+			}
+			
+			console.log(targetmodule)
+			console.log(targetmodulename)
+			
+			createassignment()
+			
+}//end success
+})//end ajax
+
+}//end validationok
+
+
+
+
+function leadingzero(innumber){
+
+if (parseInt(innumber)<10 ){
+return "0"+parseInt(innumber)
+
+}else{
+
+return innumber
+}
+
+
+}
+
+
+
+
+
+
+
+function createassignment(){
+
+
+datestr=$("#hiddendate").val()
+
+timestr=$("#endtime").children("option:selected").val()
+
+enddate=datestr+"T"+timestr+":00.000"
+
+
+//convert local date to UTC
+//format is 2020-09-25T16:00:00.000Z
+
+tempdate=new Date(enddate)
+
+
+enddate=tempdate.getUTCFullYear()+"-"+leadingzero(tempdate.getUTCMonth()+1)+"-"+leadingzero(tempdate.getUTCDate())+"T"+leadingzero(tempdate.getUTCHours())+":"+leadingzero(tempdate.getUTCMinutes())+":00.000Z"
+
+
+
+
+assignjson = '{"CategoryId": null,"Name": "' + nameprefix+clean($("#activityname").val()) + ' (Peer Assessment)","Assessment": null,"CustomInstructions": {"Content": "Please do not submit anything to this Assignment!","Type": "Text"},"Availability": {  "StartDate": null,"EndDate": null},"GroupTypeId": null,"DueDate": null,"DisplayInCalendar": false,"NotificationEmail": null,"IsHidden": false}';
+
+                console.log("assignjson:" + assignjson)
+
+
+                assignurl = "/d2l/api/le/1.37/" + OrgUnitId + "/dropbox/folders/";
+                $.ajax({
+                    type: "POST",
+                    beforeSend: function(request) {
+                        request.setRequestHeader("X-Csrf-Token", token.referrerToken);
+                    },
+                    url: assignurl,
+                    data: assignjson,
+                    success: function(assignreturn) {
+					console.log(assignreturn)
+					AssignmentId=assignreturn.Id
+					
+					
+					creategradeitem()
+					
+}//end success
+}) //end ajax                    
+
+
+
+}//end function createassignment
+
+
+
+
+function creategradeitem(){
+        gradeposturl = "/d2l/api/le/1.37/" + OrgUnitId + "/grades/"
+
+		gradejson = '{"MaxPoints": 100, "CanExceedMaxPoints": true, "IsBonus": false, "ExcludeFromFinalGradeCalculation": true, "GradeSchemeId": null, "Name": "'+nameprefix+ clean($("#activityname").val()) + ' (Peer Review)", "ShortName": "", "GradeType": "Numeric", "CategoryId": null, "Description":{"Content": "Peer Review Grade","Type": "Text/Html"}}';
+
+		$.ajax({
+                type: "POST",
+                beforeSend: function(request) {
+                    request.setRequestHeader("X-Csrf-Token", token.referrerToken);
+                },
+                url: gradeposturl,
+                data: gradejson,
+                success: function(gradertn){
+				GradeItemId=gradertn.Id				
+				createpost()
+
+				}
+				})
+				
+				
+				
+				
+
+}
+
+
+
+
+
+function createpost(){
+
+assignment=AssignmentId
+
+console.log(assignment)
+
+contentposturl="/d2l/api/le/1.25/"+OrgUnitId+"/content/modules/"+targetmodule+"/structure/?renameFileIfExists=true"
+
+configsection='var groupcategory = '+GroupCategoryId+'\r\nvar assignment = '+assignment+'\r\n'
+
+
+if(document.getElementById('selfassess').checked) {
+configsection=configsection+"var selfassess=true\r\n"
+}else{
+configsection=configsection+"var selfassess=false\r\n"
+}
+
+
+if(document.getElementById('commentfields').checked) {
+configsection=configsection+"var commentfields=true\r\n"
+}else{
+configsection=configsection+"var commentfields=false\r\n"
+}
+
+
+
+configsection=configsection+'var instructions="'+clean($("#instructions").val())+'"\r\n'
+
+configsection=configsection+'var questions = new Array()\r\n'
+configsection=configsection+'var GradeItemId = '+GradeItemId+'\r\n'
+
+criteriacount=1
+$( ".questioninput" ).each(function( index,value ) {
+
+
+if($( this ).val()!=""){
+
+configsection=configsection+'questions['+criteriacount+'] = "'+clean($(this).val())+'"\r\n'
+criteriacount++
+}
+
+    
+});
+
+configsection=configsection+'var OrgUnitId = '+OrgUnitId+'\r\n'
+
+
+
+console.log(scripturl)
+
+
+rolesstring="studentroles=["
+
+for (rl=0;rl<studentroles.length;rl++){
+rolesstring=rolesstring+'"'+studentroles[rl]+'"'
+
+if(rl<studentroles.length-1){
+rolesstring=rolesstring+","
+
+}
+
+}
+
+rolesstring=rolesstring+"]\r\n"
+
+configsection=configsection+rolesstring
+
+htmlbody='{html}\r\n{head}\r\n {meta charset="utf-8"}\r\n{meta http-equiv="x-ua-compatible" content="ie=edge"}\r\n{title}'+clean($("#activityname").val())+'{/title}\r\n{meta name="description" content=""}\r\n{meta name="viewport" content="width=device-width, initial-scale=1.0"}\r\n    {!-- Bootstrap CDN CSS --}\r\n{link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"}\r\n{!-- Font Awesome CDN CSS --}\r\n{link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"}\r\n{!-- Course Styles --}{link rel="stylesheet" href="'+assetspath+'/css/main.min.css"}\r\n{!-- Data Tables CDN CSS --}\r\n{link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/b-html5-1.6.1/datatables.min.css"/}\r\n{script src="https://code.jquery.com/jquery-1.12.4.js"}{/script}\r\n    {script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"}{/script}\r\n	\r\n{!-- jQuery CDN w/ local fallback (Bootstrap Dependency) --}\r\n{script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"}{\\/script}\r\n{!-- Bootstrap CDN JS --}\r\n{script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"}{/script}\r\n{!-- SVG Fallback JS --}\r\n{script src="'+assetspath+'/thirdpartylib/svg4everybody/svg4everybody.min.js"}{/script}\r\n{!-- Course Scripts --}\r\n{script src="'+assetspath+'/js/main.min.js"}{/script}\r\n{script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/b-html5-1.6.1/sc-2.0.1/datatables.min.js"}{/script}\r\n{script}\r\n'+configsection+'\r\n{/script}\r\n{body  class="content layout-2" role="document"}\r\n{div id="peeroutput"}{/div}{script src="'+scripturl+'"}{/script}\r\n{/body}\r\n{/html}'
+
+
+htmlbody=htmlbody.replace(/{/g,"<")
+htmlbody=htmlbody.replace(/}/g,">")
+
+
+
+
+
+
+        var formdata='--xxBOUNDARYxx\r\nContent-Type: application/json\r\n\r\n{"IsHidden": false, "IsLocked": false, "ShortTitle": "'+clean($("#activityname").val())+'", "Type": 1,"DueDate": null, "Url":"/content/enforced/'+OrgUnitId+'-'+OrgUnitCode+'/PeerAssessment.htm", "StartDate": null, "TopicType": 1, "EndDate": "'+enddate+'", "Title": "'+clean($("#activityname").val())+'"}\r\n--xxBOUNDARYxx\r\nContent-Disposition: form-data; name=""; filename="file.htm"\r\nContent-Type: text/html\r\n\r\n'+htmlbody+'\r\n--xxBOUNDARYxx--'
+						
+
+						
+						console.log(formdata)
+						
+
+$.ajax({
+                            type: "POST",
+                            beforeSend: function(request) {
+                                request.setRequestHeader("Content-Type", "multipart/mixed; boundary=xxBOUNDARYxx");
+                                request.setRequestHeader("X-Csrf-Token", token.referrerToken);
+                            },
+                            url: contentposturl,
+                            data: formdata,
+							complete: function (returndata){
+							console.log(returndata)
+							},
+							success: function (returndata){
+							$("#statusmsg").html("")
+							$("#buttonwrapper").html("<p><strong>Your Peer Assessment has been created in the "+targetmodulename+" area of <a href=\"/d2l/le/content/"+OrgUnitId+"/Home\" target=\"_top\">Content</a></strong></p>")
+							
+							}
+							})       
+
+						
+
+
+
+}//end function createpost						
+
+</script>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+				</div>
+			</div>
+		</main>
+	</div>
+
+	
+
+</body>
+
+</html>

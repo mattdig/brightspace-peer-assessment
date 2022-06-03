@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 130 130" enable-background="new 0 0 130 130" xml:space="preserve">
+<title>Info Icon</title>
+<desc>Created with Sketch.</desc>
+<g id="Info-Icon">
+	<circle id="Oval-3" fill="#FFFFFF" stroke="#E87511" stroke-width="3" cx="65" cy="65" r="63"/>
+	<g id="Page-1" transform="translate(50.000000, 24.000000)">
+		<g id="Group-3" transform="translate(0.000000, 25.657672)">
+			<g id="Clip-2">
+			</g>
+			<defs>
+				<filter id="Adobe_OpacityMaskFilter" filterUnits="userSpaceOnUse" x="0" y="1.1" width="25.2" height="52.7">
+					<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+				</filter>
+			</defs>
+			<mask maskUnits="userSpaceOnUse" x="0" y="1.1" width="25.2" height="52.7" id="mask-2">
+				<g filter="url(#Adobe_OpacityMaskFilter)">
+					<polygon id="path-1" fill="#FFFFFF" points="0,1.1 25.2,1.1 25.2,53.8 0,53.8 					"/>
+				</g>
+			</mask>
+			<path id="Fill-1" mask="url(#mask-2)" fill="#E87511" d="M25.2,53.8H0V48c0-1,0.8-2,1.8-2.1c1.8-0.3,4.8-1.2,7.6-4.1
+				c0.4-0.4,0.6-1,0.6-1.5v-29c0-1.2-1-2.2-2.2-2.2H5.6c-1.2,0-2.2-1-2.2-2.2V3.3c0-1.2,1-2.2,2.2-2.2H10h5.2H23
+				c1.2,0,2.2,1,2.2,2.2V53.8z"/>
+		</g>
+		<g id="Group-6" transform="translate(2.600000, 0.032672)">
+			<g id="Clip-5">
+			</g>
+			<defs>
+				<filter id="Adobe_OpacityMaskFilter_1_" filterUnits="userSpaceOnUse" x="0.8" y="1.2" width="21.8" height="15.8">
+					<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+				</filter>
+			</defs>
+			<mask maskUnits="userSpaceOnUse" x="0.8" y="1.2" width="21.8" height="15.8" id="mask-4">
+				<g filter="url(#Adobe_OpacityMaskFilter_1_)">
+					<polygon id="path-3" fill="#FFFFFF" points="0.8,1.2 22.6,1.2 22.6,17.1 0.8,17.1 					"/>
+				</g>
+			</mask>
+			<path id="Fill-4" mask="url(#mask-4)" fill="#E87511" d="M3,17.1c-1.2,0-2.2-1-2.2-2.2V3.4c0-1.2,19.5-2.2,19.5-2.2
+				c1.2,0,2.2,1,2.2,2.2v11.5c0,1.2-1,2.2-2.2,2.2H3z"/>
+		</g>
+	</g>
+</g>
+</svg>

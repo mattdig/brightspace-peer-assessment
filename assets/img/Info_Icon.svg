@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="130px" height="130px" viewBox="0 0 130 130" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
+    <title>Info Icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="0.00013 1.07599375 25.1862 1.07599375 25.1862 53.8122438 0.00013 53.8122438"></polygon>
+        <polygon id="path-3" points="0.8333 1.24921875 22.5862 1.24921875 22.5862 17.093925 0.8333 17.093925"></polygon>
+    </defs>
+    <g id="Info-Icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Oval-3" stroke="#E87511" stroke-width="3" fill="#FFFFFF" cx="65" cy="65" r="63"></circle>
+        <g id="Page-1" transform="translate(50.000000, 24.000000)">
+            <g id="Group-3" transform="translate(0.000000, 25.657672)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Clip-2"></g>
+                <path d="M25.18633,53.8122438 L0.00013,53.8122438 L0.00013,47.9876813 C0.00013,46.9844625 0.80223,46.0158375 1.80583,45.8479938 C3.62713,45.5443375 6.56253,44.6077438 9.35883,41.769775 C9.75793,41.3636188 9.97633,40.7909 9.97633,40.2258688 L9.97633,11.2747437 C9.97633,10.0690875 8.98443,9.092775 7.76243,9.092775 L5.64733,9.092775 C4.42403,9.092775 3.43343,8.11518125 3.43343,6.909525 L3.43343,3.25924375 C3.43343,2.05486875 4.42403,1.07599375 5.64733,1.07599375 L9.97633,1.07599375 L15.21143,1.07599375 L22.97113,1.07599375 C24.19443,1.07599375 25.18633,2.05486875 25.18633,3.25924375 L25.18633,53.8122438 Z" id="Fill-1" fill="#E87511" mask="url(#mask-2)"></path>
+            </g>
+            <g id="Group-6" transform="translate(2.600000, 0.032672)">
+                <mask id="mask-4" fill="white">
+                    <use xlink:href="#path-3"></use>
+                </mask>
+                <g id="Clip-5"></g>
+                <path d="M3.0472,17.093925 C1.8239,17.093925 0.8333,16.1163312 0.8333,14.910675 L0.8333,3.430675 C0.8333,2.2263 20.371,1.24870625 20.371,1.24870625 C21.5943,1.24870625 22.5862,2.2263 22.5862,3.430675 L22.5862,14.910675 C22.5862,16.1163312 21.5943,17.093925 20.371,17.093925 L3.0472,17.093925 Z" id="Fill-4" fill="#E87511" mask="url(#mask-4)"></path>
+            </g>
+        </g>
+    </g>
+</svg>
