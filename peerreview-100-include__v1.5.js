@@ -15,7 +15,7 @@ var doneicon = '<svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" v
 roleurl = "/d2l/api/lp/1.22/enrollments/myenrollments/" + OrgUnitId + "/access";
 
 var RoleName;
-var mygroup
+var mygroup;
 var classlistresponse;
 var groupresponse;
 var whoamiresponse;
@@ -1184,7 +1184,6 @@ function studentsubmit() {
 
 
 function editcomment(Id) {
-
     //hide edit buttons
     $(".editbutton").hide();
 
