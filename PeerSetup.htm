@@ -3,6 +3,11 @@
 
 <head>
 
+	<!-- jQuery CDN w/ local fallback (Bootstrap Dependency) -->
+	<script>
+		window.jQuery || document.write('<script src="/assets/thirdpartylib/jquery/jquery-1.11.3.min.js"><\/script>');
+	</script>
+
 	<script>
 		//Purpose: Peer assessment of assessment setup form
 
@@ -20,7 +25,6 @@
 
 
 		//configuration variables
-
 
 		defaultmodule = "Assessment";
 
@@ -64,11 +68,7 @@
 
 
 
-<!-- jQuery CDN w/ local fallback (Bootstrap Dependency) -->
 
-<script>
-	window.jQuery || document.write('<script src="/assets/thirdpartylib/jquery/jquery-1.11.3.min.js"><\/script>');
-</script>
 <!-- Bootstrap CDN JS -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <!-- SVG Fallback JS -->
