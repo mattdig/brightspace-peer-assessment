@@ -885,6 +885,8 @@ function selectall() {
 function validate() {
     //console.log("changed");
 
+    let validationerrors = 0;
+
     //disable the submit button
     $("#studentsubmitbutton").hide();
 
