@@ -3,9 +3,6 @@
 
 <head>
 
-	<!-- jQuery -->
-	<script src="/assets/thirdpartylib/jquery/jquery-1.11.3.min.js"></script>
-
 	<script>
 		//Purpose: Peer assessment of assessment setup form
 
@@ -30,7 +27,7 @@
 
 		nameprefix = "(EX) ";
 
-		studentroles = ["Student", "ReadOnly"];
+		studentroles = ["Learner", "Demo-Learner", "Guest"];
 
 	</script>
 
@@ -58,34 +55,20 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 	<!-- Course Styles -->
 	<link rel="stylesheet" href="assets/css/main.min.css">
-</head>
-<!-- Data Tables CDN CSS -->
 
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+	<!-- Bootstrap CDN JS -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<!-- SVG Fallback JS -->
+	<script src="assets/thirdpartylib/svg4everybody/svg4everybody.min.js"></script>
+	<!-- Course Scripts -->
+	<script src="assets/js/main.min.js"></script>
 
-
-
-
-<!-- Bootstrap CDN JS -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-<!-- SVG Fallback JS -->
-<script src="assets/thirdpartylib/svg4everybody/svg4everybody.min.js"></script>
-<!-- Course Scripts -->
-<script src="assets/js/main.min.js"></script>
-
-
-
-
-
-
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<!--  <link rel="stylesheet" href="resources/demos/style.css">-->
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
-<script type="text/javascript"
-	src="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/r-2.2.3/datatables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/r-2.2.3/datatables.min.js"></script>
 
 </head>
 
@@ -137,7 +120,7 @@
 
 						console.log(urlsplit_b);
 						var OrgUnitId = urlsplit_b[0];
-						var OrgUnitCode = urlsplit_b[1];
+						var OrgUnitPath = '';
 
 						//for testing within a module content
 						//OrgUnitId={OrgUnitId}
@@ -164,32 +147,40 @@
 						var whoamiresponse;
 						var groupsize;
 
-						$.ajax({
-							method: "GET",
-							url: roleurl,
-							dataType: 'json',
-							error: function (roleresponse) {
-								$("#outputdiv").html("<p>Unable to open module classlist.</p>");
-								console.log(roleresponse);
-								console.log(roleurl);
+						$(function () {
 
-							},
-							success: function (roleresponse) {
-								RoleName = roleresponse.Access.ClasslistRoleName;
-								if (RoleName == "Student") {
-									$("#outputdiv").html("<p>This page is not available to your current role in this module</p>");
+							$.ajax({
+								method: "GET",
+								url: '/d2l/api/lp/1.22/courses/' + OrgUnitId,
+								dataType: 'json',
+								success: function (courseresponse) {
 
-
-								} else {
-									gettoken();
-
-								}//end else gettoken
-							},
-							error: function (roleresponse) {
-								$("#outputdiv").html("<p>Unable to access data from Brightspace. This can happen when you log in using an address that ends in brightspace.com rather than the official version.</p>");
-
-
-							}
+									OrgUnitPath = courseresponse.Path;
+									
+									$.ajax({
+										method: "GET",
+										url: roleurl,
+										dataType: 'json',
+										error: function (roleresponse) {
+											$("#outputdiv").html("<p>Unable to open module classlist.</p>");
+											//console.log(roleresponse);
+											//console.log(roleurl);
+										},
+										success: function (roleresponse) {
+											RoleName = roleresponse.Access.ClasslistRoleName;
+											if (RoleName == "Student") {
+												$("#outputdiv").html("<p>This page is not available to your current role in this module</p>");
+											} else {
+												gettoken();
+											}//end else gettoken
+										},
+										error: function (roleresponse) {
+											$("#outputdiv").html("<p>Unable to access data from Brightspace. This can happen when you log in using an address that ends in brightspace.com rather than the official version.</p>");
+										}
+									});
+								}
+							});
+						
 						});
 
 
@@ -693,7 +684,7 @@
 
 
 
-							var formdata = '--xxBOUNDARYxx\r\nContent-Type: application/json\r\n\r\n{"IsHidden": false, "IsLocked": false, "ShortTitle": "' + clean($("#activityname").val()) + '", "Type": 1,"DueDate": null, "Url":"/content/enforced/' + OrgUnitId + '-' + OrgUnitCode + '/PeerAssessment.htm", "StartDate": null, "TopicType": 1, "EndDate": "' + enddate + '", "Title": "' + clean($("#activityname").val()) + '"}\r\n--xxBOUNDARYxx\r\nContent-Disposition: form-data; name=""; filename="file.htm"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n--xxBOUNDARYxx--';
+							var formdata = '--xxBOUNDARYxx\r\nContent-Type: application/json\r\n\r\n{"IsHidden": false, "IsLocked": false, "ShortTitle": "' + clean($("#activityname").val()) + '", "Type": 1,"DueDate": null, "Url":"' + OrgUnitPath + 'PeerAssessment.htm", "StartDate": null, "TopicType": 1, "EndDate": "' + enddate + '", "Title": "' + clean($("#activityname").val()) + '"}\r\n--xxBOUNDARYxx\r\nContent-Disposition: form-data; name=""; filename="file.htm"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n--xxBOUNDARYxx--';
 
 
 
