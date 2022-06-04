@@ -17,6 +17,8 @@ Adjust the following settings as needed:
 
 Zip the contents of this folder, without any hidden / git / macOS files. Modify as needed.
 From the working directory:
-zip -r peerassessment.zip . -x ".*" -x "__MACOSX" -x "Thumbs.db" -x "documentation" -x "README.md" -x "LICENSE"
+zip -r peerassessment.zip . -x ".*" -x "__MACOSX" -x "Thumbs.db" -x "documentation*" -x "README.md" -x "LICENSE"
 
 Follow the more detailed installation instructions in documenation/Administrator Guide.docx
+
+Provide documentation/Peer Assessment Instructor Guide.docx to the instructors
