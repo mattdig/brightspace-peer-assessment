@@ -22,6 +22,8 @@ var whoamiresponse;
 var groupsize;
 var userid;
 
+// defaultgrade is set in PeerSetup.htm
+
 $.ajax({
     method: "GET",
     url: roleurl,
@@ -369,8 +371,8 @@ $.ajax({
 
                                     }
 
-                                    //default total column to 100 if no votes received
-                                    $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"total-" + groupresponse[g].Enrollments[e] + "\">100</span></td>");
+                                    //default total column to defulatgrade if no votes received
+                                    $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"total-" + groupresponse[g].Enrollments[e] + "\">" + defaultgrade + "</span></td>");
 
                                 } //end for e
 
@@ -475,12 +477,15 @@ $.ajax({
 
                                                 //console.log(totalmarks+"^"+totalratings);
 
+                                                /*
+                                                NOT THIS
+
                                                 if (totalmarks != (totalratings * 100)) {
 
                                                     validationerrors++;
                                                     validationmsg = validationmsg = "<p>Ratings from student " + submissions[s].Entity.DisplayName + " rejected: Do not add up to 100 per question</p>";
 
-                                                }
+                                                }*/
 
                                                 if (validationerrors > 0) {
 
@@ -903,14 +908,14 @@ function validate() {
 
         $('.q' + q).each(function () {
 
+            let intVal = parseInt($(this).val());
 
+            if (intVal != $(this).val() || intVal < 0 || intVal > 100) {
 
-            if (parseInt($("#" + this.id).val()) != $("#" + this.id).val()) {
+                validationerrors++;
 
-
-
-                $("#" + this.id).css("background-color", "#f098e5");
-                $("#validationmsg").html("You must enter a whole number for each student's score for each question");
+                $(this).css("background-color", "#f098e5");
+                $("#validationmsg").html("You must enter a number for each student's score between 0 and 100");
 
                 $("#total-" + q).hide();
 
@@ -928,7 +933,7 @@ function validate() {
 
 
 
-
+    /* NOT THIS
     //do the total fields add up?
 
     targetscore = groupsize * 100;
@@ -947,6 +952,7 @@ function validate() {
         }
 
     } //end for q
+    */
 
 
     if (validationerrors == 0) {

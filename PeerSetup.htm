@@ -23,9 +23,12 @@
 
 		defaultmodule = "Assessment";
 
-		defaultinstructions = "Peer Assessment allows you to adjust the scores of your team members to reflect their contribution to the group. Everybody starts off with 100 points per category, but you can reallocate these marks to other team members. Each column must add up to 100 x the number of group members.\r\n\r\nStaff involved in the module will be able to see your ratings but your peers will only see them in an anonymous form.";
+		defaultinstructions = "Peer Assessment allows you to adjust the scores of your team members to reflect their contribution to the group. Each category can be graded from 0 to 100 points.\r\n\r\nStaff involved in the module will be able to see your ratings but your peers will only see them in an anonymous form.";
 
-		nameprefix = "(EX) ";
+		// Grade given when no points have been assigned to a student. Should be 0 or 100.
+		defaultgrade = 0;
+
+		nameprefix = "";
 
 		studentroles = ["Learner", "Demo-Learner", "Guest"];
 
@@ -651,6 +654,7 @@
 							});
 
 							configsection = configsection + 'var OrgUnitId = ' + OrgUnitId + '\r\n';
+							configsection = configsection + 'var defaultgrade = ' + defaultgrade + '\r\n';
 
 
 
