@@ -772,6 +772,9 @@ function savetogradebook() {
             token = ltoken;
 
 
+            let commentenabled = document.getElementById("includecomments") ? document.getElementById("includecomments").checked : false;
+            
+
             $(".studentselect").each(function (index) {
                 //console.log($("#" + this.id).prop("checked"));
 
@@ -786,9 +789,6 @@ function savetogradebook() {
                     //console.log(gradeputurl);
 
                     commentstring = "";
-
-                    commentenabled = document.getElementById("includecomments").checked;
-
 
                     commentstring = commentstring + "<table><thead><tr><th>Criteria</th><th>Average Score</th></tr></thead><tbody>\n";
                     for (q = 1; q < questions.length; q++) {
