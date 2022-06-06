@@ -1,6 +1,8 @@
 # brightspace-peer-assessment
 An updated version of the Brightspace Peer Assessment tool, originally made at the University of Huddersfield 
 
+Original article: https://community.brightspace.com/s/article/Developer-Spotlight-Building-Peer-Assessment-within-Brightspace
+
 Updates from the original:
 * Grades are now from 0-100 and the totals don't have to add up (not an option, just a change)
 * The default grade can be set to 0 or 100 in PeerSetup.htm (we preferred 0)
