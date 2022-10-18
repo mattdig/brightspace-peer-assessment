@@ -587,7 +587,8 @@
 						function creategradeitem() {
 							gradeposturl = "/d2l/api/le/1.37/" + OrgUnitId + "/grades/";
 
-							gradejson = '{"MaxPoints": 100, "CanExceedMaxPoints": true, "IsBonus": false, "ExcludeFromFinalGradeCalculation": true, "GradeSchemeId": null, "Name": "' + nameprefix + clean($("#activityname").val()) + ' (Peer Review)", "ShortName": "", "GradeType": "Numeric", "CategoryId": null, "Description":{"Content": "Peer Review Grade","Type": "Text/Html"}}';
+							gradejson = '{"MaxPoints": 100, "CanExceedMaxPoints": false, "IsBonus": false, "ExcludeFromFinalGradeCalculation": true, "GradeSchemeId": null, "Name": "' + nameprefix + clean($("#activityname").val()) + 
+								' (Peer Review)", "ShortName": "", "GradeType": "Numeric", "CategoryId": null, "Description":{"Content": "Peer Review Grade","Type": "Text/Html"}, "IsHidden": true}';
 
 							$.ajax({
 								type: "POST",
