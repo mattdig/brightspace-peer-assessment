@@ -16,6 +16,7 @@ roleurl = "/d2l/api/lp/1.22/enrollments/myenrollments/" + OrgUnitId + "/access";
 
 var RoleName;
 var mygroup;
+var enrollments;
 var classlistresponse;
 var groupresponse;
 var whoamiresponse;
@@ -166,6 +167,11 @@ $.ajax({
 
 
                                                     }
+
+                                                    $("#theadrow").append("<th>Average</th>");
+                                                    $("#totalrow").append("<td>&nbsp</td>");
+
+
                                                     $("#peeroutput").append("");
 
 
@@ -186,6 +192,8 @@ $.ajax({
 
 
                                                             if (classlistresponse[l].Identifier == enrollments[e]) {
+                                                                enrollments[e] = classlistresponse[l];
+                                                                enrollments[e].Total = 0;
 
                                                                 $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].Identifier + "\" rowspan=\"2\"><th>" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "</th></tr>");
 
@@ -197,6 +205,8 @@ $.ajax({
                                                                         $("#row-" + classlistresponse[l].Identifier).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].Identifier + "\" value=\"100\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + " ,for category: " + questions[q] + "\"/></td>");
 
                                                                     }
+
+                                                                    $("#row-" + classlistresponse[l].Identifier).append("<td><span id=\"average-" + classlistresponse[l].Identifier + "\">100</span></td>");
 
                                                                     if (commentfields == true) {
                                                                         $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].Identifier + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "\"></td></tr>");
@@ -908,22 +918,24 @@ function validate() {
 
         total = 0;
 
-        $('.q' + q).each(function () {
+        $('.q' + q).each(function (i, elem) {
 
-            let intVal = parseInt($(this).val());
+            let intVal = parseInt($(elem).val());
 
-            if (intVal != $(this).val() || intVal < 0 || intVal > 100) {
+            if (intVal != $(elem).val() || intVal < 0 || intVal > 100) {
 
                 validationerrors++;
 
-                $(this).css("background-color", "#f098e5");
+                $(elem).css("background-color", "#f098e5");
                 $("#validationmsg").html("You must enter a number for each student's score between 0 and 100");
 
                 $("#total-" + q).hide();
 
             } else {
 
-                total = total + parseInt($("#" + this.id).val());
+                enrollments[i].Total += parseInt($(elem).val());
+
+                total += parseInt($(elem).val());
 
                 $("#total-" + q).html(total);
 
@@ -958,6 +970,8 @@ function validate() {
 
 
     if (validationerrors == 0) {
+
+
 
         $("#validationmsg").html("");
         $("#studentsubmitbutton").show();
@@ -1043,7 +1057,7 @@ function studentsubmit() {
 
     csvstring = "";
 
-    enrollments = groupresponse[mygroup].Enrollments;
+    //enrollments = groupresponse[mygroup].Enrollments;
 
     formelements = document.getElementById("studentform").elements;
     //console.log("***");
