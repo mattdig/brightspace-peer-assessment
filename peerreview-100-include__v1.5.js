@@ -195,7 +195,7 @@ $.ajax({
                                                                 enrollments[e] = classlistresponse[l];
                                                                 enrollments[e].Total = 0;
 
-                                                                $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].Identifier + "\" rowspan=\"2\"><th>" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "</th></tr>");
+                                                                $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].Identifier + "\" rowspan=\"2\" data-studentid=\"" + classlistresponse[l].Identifier + "\"><th>" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "</th></tr>");
 
 
                                                                 if (classlistresponse[l].Identifier != userid || (classlistresponse[l].Identifier == userid && selfassess == true)) {
@@ -910,6 +910,8 @@ function validate() {
 
     //loop through each question's fields
 
+    let rowTotals = [];
+
     for (q = 1; q < questions.length; q++) {
 
         //console.log("question" + q);
@@ -919,6 +921,13 @@ function validate() {
         total = 0;
 
         $('.q' + q).each(function (i, elem) {
+
+            let studentId = $(elem).attr("id").split("-")[1];
+            if(rowTotals[studentId] == undefined) {
+                rowTotals[studentId] = 0;
+            }
+
+            rowTotals[studentId] += parseInt($(elem).val());
 
             let intVal = parseInt($(elem).val());
 
@@ -970,11 +979,12 @@ function validate() {
 
 
     if (validationerrors == 0) {
-
-
-
         $("#validationmsg").html("");
         $("#studentsubmitbutton").show();
+
+        rowTotals.forEach((total, index) => {
+            $("#total-" + index).html(total);
+        });
     }
 
     //enable button after validation passed
