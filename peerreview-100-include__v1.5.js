@@ -214,7 +214,7 @@ $.ajax({
 
                                                                 } else {
                                                                     //self assess turned off
-                                                                    $("#row-" + classlistresponse[l].Identifier).append("<td colspan=\"" + (questions.length - 1) + "\">You are not able to rate your own contribution</td>");
+                                                                    $("#row-" + classlistresponse[l].Identifier).append("<td colspan=\"" + (questions.length) + "\">You are not able to rate your own contribution</td>");
                                                                 }
 
                                                             } //end if
