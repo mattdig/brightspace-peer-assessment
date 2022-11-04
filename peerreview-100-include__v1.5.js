@@ -156,20 +156,17 @@ $.ajax({
 
 
                                                     $("#peeroutput").html("<h2>" + mygroupname + "</h2>");
-                                                    $("#peeroutput").append("<div id=\"instructions\"></div><form id=\"studentform\"><table class=\"table table-responsive\" ><thead><tr id=\"theadrow\"><th>Student</th></tr></thead><tbody id=\"scoretablebody\"></tbody><tfoot><tr id=\"totalrow\"><td colspan=\"\">Points Awarded:</td></td></tfoot></table>");
+                                                    $("#peeroutput").append("<div id=\"instructions\"></div><form id=\"studentform\"><table class=\"table table-responsive\" ><thead><tr id=\"theadrow\"><th>Student</th></tr></thead><tbody id=\"scoretablebody\"></tbody><!--tfoot><tr id=\"totalrow\"><td colspan=\"\">Points Awarded:</td></td></tfoot--></table>");
 
                                                     questionstxt = "";
 
                                                     for (q = 1; q < questions.length; q++) {
-
                                                         $("#theadrow").append("<th>" + questions[q] + "</th>");
-                                                        $("#totalrow").append("<td><span id=\"total-" + q + "\">" + (groupsize * 100) + "</span></td>");
-
-
+                                                        //$("#totalrow").append("<td><span id=\"total-" + q + "\">" + (groupsize * 100) + "</span></td>");
                                                     }
 
                                                     $("#theadrow").append("<th>Average</th>");
-                                                    $("#totalrow").append("<td>&nbsp</td>");
+                                                    //$("#totalrow").append("<td>&nbsp</td>");
 
 
                                                     $("#peeroutput").append("");
@@ -195,7 +192,7 @@ $.ajax({
                                                                 enrollments[e] = classlistresponse[l];
                                                                 enrollments[e].Total = 0;
 
-                                                                $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].Identifier + "\" rowspan=\"2\" data-studentid=\"" + classlistresponse[l].Identifier + "\"><th>" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "</th></tr>");
+                                                                $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].Identifier + "\" class=\"row-student\" rowspan=\"2\" data-studentid=\"" + classlistresponse[l].Identifier + "\"><th>" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "</th></tr>");
 
 
                                                                 if (classlistresponse[l].Identifier != userid || (classlistresponse[l].Identifier == userid && selfassess == true)) {
@@ -910,49 +907,85 @@ function validate() {
 
     //loop through each question's fields
 
-    let rowTotals = [];
+    // let rowTotals = [];
 
-    for (q = 1; q < questions.length; q++) {
+    $('.row-student').each(function (rowIndex, row) {
+            
+            let rowTotal = 0;
+            let studentId = $(row).data('studentid');
+            let average = true;
+    
+            $(row).find('.ratingfield').each(function (fieldIndex, field) {
+    
+                let intVal = parseInt($(field).val());
 
-        //console.log("question" + q);
+                if (intVal != $(field).val() || intVal < 0 || intVal > 100) {
 
-        $("#total-" + q).show();
+                    validationerrors++;
 
-        total = 0;
+                    $(field).css("background-color", "#f098e5");
+                    $("#validationmsg").html("You must enter a number for each student's score between 0 and 100, wihtout decimal places.");
 
-        $('.q' + q).each(function (i, elem) {
+                    $('#average-' + studentId).html("N/A");
+                    average = false;
 
-            let studentId = $(elem).attr("id").split("-")[1];
-            if(rowTotals[studentId] == undefined) {
-                rowTotals[studentId] = 0;
+                } else {
+
+                    rowTotal += intVal;
+                    $(field).css("background-color", "FFFFFF");
+                    
+                }
+    
+            });
+
+            if (average) {
+                average = parseFloat((rowTotal / (questions.length - 1)).toFixed(2));
+                $('#average-' + studentId).html(average);
             }
 
-            rowTotals[studentId] += parseInt($(elem).val());
+    });
 
-            let intVal = parseInt($(elem).val());
+    // for (q = 1; q < questions.length; q++) {
 
-            if (intVal != $(elem).val() || intVal < 0 || intVal > 100) {
+    //     //console.log("question" + q);
 
-                validationerrors++;
+    //     $("#total-" + q).show();
 
-                $(elem).css("background-color", "#f098e5");
-                $("#validationmsg").html("You must enter a number for each student's score between 0 and 100");
+    //     total = 0;
 
-                $("#total-" + q).hide();
+    //     $('.q' + q).each(function (i, elem) {
 
-            } else {
+    //         let studentId = $(elem).attr("id").split("-")[1];
+    //         if(rowTotals[studentId] == undefined) {
+    //             rowTotals[studentId] = 0;
+    //         }
 
-                enrollments[i].Total += parseInt($(elem).val());
+    //         rowTotals[studentId] += parseInt($(elem).val());
 
-                total += parseInt($(elem).val());
+    //         let intVal = parseInt($(elem).val());
 
-                $("#total-" + q).html(total);
+    //         if (intVal != $(elem).val() || intVal < 0 || intVal > 100) {
 
-            } //end if
+    //             validationerrors++;
 
-        }) //end each
+    //             $(elem).css("background-color", "#f098e5");
+    //             $("#validationmsg").html("You must enter a number for each student's score between 0 and 100");
 
-    } //end for q
+    //             $("#total-" + q).hide();
+
+    //         } else {
+
+    //             enrollments[i].Total += parseInt($(elem).val());
+
+    //             total += parseInt($(elem).val());
+
+    //             $("#total-" + q).html(total);
+
+    //         } //end if
+
+    //     }) //end each
+
+    // } //end for q
 
 
 
@@ -979,12 +1012,13 @@ function validate() {
 
 
     if (validationerrors == 0) {
+        
         $("#validationmsg").html("");
         $("#studentsubmitbutton").show();
 
-        rowTotals.forEach((total, index) => {
-            $("#total-" + index).html(total);
-        });
+        // rowTotals.forEach((total, index) => {
+        //     $("#average-" + index).html((total / questions.length).toFixed(2));
+        // });
     }
 
     //enable button after validation passed
