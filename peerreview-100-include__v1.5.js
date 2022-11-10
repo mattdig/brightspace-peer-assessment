@@ -204,12 +204,12 @@ $.ajax({
                                                                     $("#row-" + classlistresponse[l].Identifier).append("<td><span id=\"average-" + classlistresponse[l].Identifier + "\">100</span></td>");
 
                                                                     if (commentfields == true) {
-                                                                        $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].Identifier + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "\"></td></tr>");
+                                                                        $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].Identifier + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "\"></td></tr>");
                                                                     }
 
                                                                 } else {
                                                                     //self assess turned off
-                                                                    $("#row-" + classlistresponse[l].Identifier).append("<td colspan=\"" + (questions.length) + "\">You are not able to rate your own contribution</td>");
+                                                                    $("#row-" + classlistresponse[l].Identifier).append("<td colspan=\"" + (questions.length + 1) + "\">You are not able to rate your own contribution</td>");
                                                                 }
 
                                                             } //end if
