@@ -23,8 +23,6 @@ var whoamiresponse;
 var groupsize;
 var userid;
 
-// defaultgrade is set in PeerSetup.htm
-
 $.ajax({
     method: "GET",
     url: roleurl,
@@ -379,7 +377,7 @@ $.ajax({
                                     }
 
                                     //default total column to defulatgrade if no votes received
-                                    $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"total-" + groupresponse[g].Enrollments[e] + "\">" + defaultgrade + "</span></td>");
+                                    $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"total-" + groupresponse[g].Enrollments[e] + "\">0</span></td>");
 
                                 } //end for e
 
@@ -780,7 +778,9 @@ function savetogradebook() {
 
 
             let commentenabled = document.getElementById("includecomments") ? document.getElementById("includecomments").checked : false;
-            
+
+            let totalToSumbit = $(".studentselect:checked").length;
+            let totalSubmitted = 0;
 
             $(".studentselect").each(function (index) {
                 //console.log($("#" + this.id).prop("checked"));
@@ -847,6 +847,11 @@ function savetogradebook() {
                         success: function (response) {
                             //console.log(this);
                             $("#checkboxwrapper-" + this.entityid).html(doneicon);
+
+                            totalSubmitted++;
+                            if (totalSubmitted == totalToSumbit) {
+                                setTimeout(function(){alert("All selected grades have been published to the Gradebook.");},200);
+                            }
 
                         } //end success ajax PUT
 
