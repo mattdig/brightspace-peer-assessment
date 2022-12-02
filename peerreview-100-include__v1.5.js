@@ -142,7 +142,7 @@ $.ajax({
 
                                             //get the classlist
 
-                                            classlisturl = "/d2l/api/le/1.35/" + OrgUnitId + "/classlist/";
+                                            classlisturl = "/d2l/api/bas/1.1/orgunits/" + OrgUnitId + "/classlist/";
 
 
                                             $.ajax({
@@ -150,7 +150,7 @@ $.ajax({
                                                 url: classlisturl,
                                                 dataType: 'json',
                                                 success: function (classlistresponse_tmp) {
-                                                    classlistresponse = classlistresponse_tmp;
+                                                    classlistresponse = classlistresponse_tmp.Objects;
 
 
                                                     $("#peeroutput").html("<h2>" + mygroupname + "</h2>");
@@ -186,30 +186,30 @@ $.ajax({
                                                         for (l = 0; l < classlistresponse.length; l++) {
 
 
-                                                            if (classlistresponse[l].Identifier == enrollments[e]) {
+                                                            if (classlistresponse[l].UserId == enrollments[e]) {
                                                                 enrollments[e] = classlistresponse[l];
                                                                 enrollments[e].Total = 0;
 
-                                                                $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].Identifier + "\" class=\"row-student\" rowspan=\"2\" data-studentid=\"" + classlistresponse[l].Identifier + "\"><th>" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "</th></tr>");
+                                                                $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].UserId + "\" class=\"row-student\" rowspan=\"2\" data-studentid=\"" + classlistresponse[l].UserId + "\"><th>" + classlistresponse[l].DisplayName + "</th></tr>");
 
 
-                                                                if (classlistresponse[l].Identifier != userid || (classlistresponse[l].Identifier == userid && selfassess == true)) {
+                                                                if (classlistresponse[l].UserId != userid || (classlistresponse[l].UserId == userid && selfassess == true)) {
 
                                                                     for (q = 1; q < questions.length; q++) {
 
-                                                                        $("#row-" + classlistresponse[l].Identifier).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].Identifier + "\" value=\"100\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + " ,for category: " + questions[q] + "\"/></td>");
+                                                                        $("#row-" + classlistresponse[l].UserId).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"100\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
 
                                                                     }
 
-                                                                    $("#row-" + classlistresponse[l].Identifier).append("<td><span id=\"average-" + classlistresponse[l].Identifier + "\">100</span></td>");
+                                                                    $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">100</span></td>");
 
                                                                     if (commentfields == true) {
-                                                                        $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].Identifier + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].FirstName + " " + classlistresponse[l].LastName + "\"></td></tr>");
+                                                                        $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].UserId + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].DisplayName + "\"></td></tr>");
                                                                     }
 
                                                                 } else {
                                                                     //self assess turned off
-                                                                    $("#row-" + classlistresponse[l].Identifier).append("<td colspan=\"" + (questions.length + 1) + "\">You are not able to rate your own contribution</td>");
+                                                                    $("#row-" + classlistresponse[l].UserId).append("<td colspan=\"" + (questions.length + 1) + "\">You are not able to rate your own contribution</td>");
                                                                 }
 
                                                             } //end if
@@ -389,7 +389,7 @@ $.ajax({
 
                             //get the classlist
 
-                            classlisturl = "/d2l/api/le/1.35/" + OrgUnitId + "/classlist/";
+                            classlisturl = "/d2l/api/bas/1.1/orgunits/" + OrgUnitId + "/classlist/";
 
 
                             $.ajax({
@@ -403,8 +403,8 @@ $.ajax({
 
                                     for (l = 0; l < classlistresponse.length; l++) {
 
-                                        $("#name-" + classlistresponse[l].Identifier).html(classlistresponse[l].DisplayName);
-                                        $("#username-" + classlistresponse[l].Identifier).html(classlistresponse[l].OrgDefinedId);
+                                        $("#name-" + classlistresponse[l].UserId).html(classlistresponse[l].DisplayName);
+                                        $("#username-" + classlistresponse[l].UserId).html(classlistresponse[l].OrgDefinedId);
 
 
                                     } //end for l
@@ -673,7 +673,7 @@ $.ajax({
 function getstudentname(id) {
     for (l = 0; l < classlistresponse.length; l++) {
 
-        if (classlistresponse[l].Identifier == id) {
+        if (classlistresponse[l].UserId == id) {
             return (classlistresponse[l].DisplayName);
         } //end if
 
