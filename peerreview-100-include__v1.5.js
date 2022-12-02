@@ -335,7 +335,7 @@ $.ajax({
                             $("#peeroutput").html("<p class=\"well\">The Student view of this screen allows them to register their Peer Assessment. This view shows you the feedback provided.</p>");
 
 
-                            $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th >Username</th><th>Peer Assessment submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
+                            $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th>Org Defined ID</th><th>Peer Assessment submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
 
 
 
@@ -366,7 +366,7 @@ $.ajax({
 
                                 for (e = 0; e < groupresponse[g].Enrollments.length; e++) {
 
-                                    $("#outputtablebody").append("<tr id=\"row-" + groupresponse[g].Enrollments[e] + "\"><!--<td>" + groupresponse[g]["GroupId"] + "</td>--><td>" + groupresponse[g]["Name"] + "</td><!--<td>" + groupresponse[g].Enrollments[e] + "</td>--><td><span id=\"name-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"username-" + groupresponse[g].Enrollments[e] + "\"></span><td><span id=\"voted-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"ratings-" + groupresponse[g].Enrollments[e] + "\">0</span></td></tr>");
+                                    $("#outputtablebody").append("<tr id=\"row-" + groupresponse[g].Enrollments[e] + "\"><!--<td>" + groupresponse[g]["GroupId"] + "</td>--><td>" + groupresponse[g]["Name"] + "</td><!--<td>" + groupresponse[g].Enrollments[e] + "</td>--><td><span id=\"name-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"orgdefinedid-" + groupresponse[g].Enrollments[e] + "\"></span><td><span id=\"voted-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"ratings-" + groupresponse[g].Enrollments[e] + "\">0</span></td></tr>");
 
                                     for (q = 1; q < questions.length; q++) {
 
@@ -389,7 +389,7 @@ $.ajax({
 
                             //get the classlist
 
-                            classlisturl = "/d2l/api/bas/1.1/orgunits/" + OrgUnitId + "/classlist/";
+                            classlisturl = "/d2l/api/le/1.35/" + OrgUnitId + "/classlist/";
 
 
                             $.ajax({
@@ -403,8 +403,8 @@ $.ajax({
 
                                     for (l = 0; l < classlistresponse.length; l++) {
 
-                                        $("#name-" + classlistresponse[l].UserId).html(classlistresponse[l].DisplayName);
-                                        $("#username-" + classlistresponse[l].UserId).html(classlistresponse[l].OrgDefinedId);
+                                        $("#name-" + classlistresponse[l].Identifier).html(classlistresponse[l].DisplayName);
+                                        $("#orgdefinedid-" + classlistresponse[l].Identifier).html(classlistresponse[l].OrgDefinedId);
 
 
                                     } //end for l
@@ -673,7 +673,7 @@ $.ajax({
 function getstudentname(id) {
     for (l = 0; l < classlistresponse.length; l++) {
 
-        if (classlistresponse[l].UserId == id) {
+        if (classlistresponse[l].Identifier == id || classlistresponse[l].UserId == id) {
             return (classlistresponse[l].DisplayName);
         } //end if
 
