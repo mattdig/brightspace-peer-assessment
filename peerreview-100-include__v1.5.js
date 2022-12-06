@@ -144,13 +144,18 @@ $.ajax({
 
                                             classlisturl = "/d2l/api/bas/1.1/orgunits/" + OrgUnitId + "/classlist/";
 
+                                            getClasslist(classlisturl).then(classlistresponse_tmp => {
 
-                                            $.ajax({
-                                                method: "GET",
-                                                url: classlisturl,
-                                                dataType: 'json',
-                                                success: function (classlistresponse_tmp) {
-                                                    classlistresponse = classlistresponse_tmp.Objects;
+                                                classlistresponse = classlistresponse_tmp.Objects;
+
+                                            // });
+
+                                            // $.ajax({
+                                            //     method: "GET",
+                                            //     url: classlisturl,
+                                            //     dataType: 'json',
+                                            //     success: function (classlistresponse_tmp) {
+                                            //         classlistresponse = classlistresponse_tmp.Objects;
 
 
                                                     $("#peeroutput").html("<h2>" + mygroupname + "</h2>");
@@ -229,19 +234,19 @@ $.ajax({
                                                     $("#peeroutput").append("<div id=\"buttoncontainer\"><div id=\"validationmsg\"></div><button id=\"studentsubmitbutton\" onclick=\"studentsubmit()\">Submit Scores</button></div>");
 
 
-                                                } //end success classlist
-                                            }) //end ajax classlist
+                                                //} //end success classlist
+                                            }); //end ajax classlist
 
                                         }//end if mygroups==1
 
 
                                     } //end success whoami
-                                }) //end ajax whoami
+                                }); //end ajax whoami
 
 
 
                             } //end success grouplist
-                        }) //end ajax grouplist
+                        }); //end ajax grouplist
 
 
                     } else { // if already submitted
@@ -1252,7 +1257,48 @@ function studentsubmit() {
 } //end function studentsubmit
 
 
+function getClasslist(url){
 
+    let d2lPos = url.indexOf('/d2l/');
+    if(d2lPos > -1){
+        url = url.substring(d2lPos);
+    }
+
+    // call the API to get the class list
+    // continue calling until result.Next is null
+
+    let classlist = {'Objects': [], 'Next' : url};
+
+    let classlistPromise = new Promise((resolve, reject) => {
+        let classlistLoop = function(){
+            $.ajax({
+                type: "GET",
+                url: classlist.Next,
+                success: function (response) {
+                    classlist.Objects = classlist.Objects.concat(response.Objects);
+                    if(response.Next !== null){
+                        classlist.Next = response.Next;
+                        d2lPos = classlist.Next.indexOf('/d2l/');
+                        if(d2lPos > -1){
+                            classlist.Next = classlist.Next.substring(d2lPos);
+                        }
+
+                        classlistLoop();
+                    } else {
+                        resolve(classlist);
+                    }
+                },
+                error: function (response) {
+                    reject(response);
+                }
+            });
+        }
+        classlistLoop();
+    });
+
+    return classlistPromise;
+
+}
 
 function editcomment(Id) {
     //hide edit buttons
