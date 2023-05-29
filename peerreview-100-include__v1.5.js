@@ -49,219 +49,193 @@ $.ajax({
                 method: "GET",
                 url: submissionsurl,
                 dataType: 'json',
-                error: function (existingsubmission) {
+                error: function (existingsubmissions) {
                     $("#peeroutput").html("Sorry, there was a problem accessing this content. Please report this to your lecturer.");
                 },
-                success: function (existingsubmission) {
+                success: function (existingsubmissions) {
 
-                    if (existingsubmission.length == 0) {
+                    //find my groupcategory
 
+                    groupurl = "/d2l/api/lp/1.22/" + OrgUnitId + "/groupcategories/" + groupcategory + "/groups/";
 
-                        //find my groupcategory
-
-                        groupurl = "/d2l/api/lp/1.22/" + OrgUnitId + "/groupcategories/" + groupcategory + "/groups/";
-
-
-                        $.ajax({
-                            method: "GET",
-                            url: groupurl,
-                            dataType: 'json',
-                            success: function (groupresponse_tmp) {
-                                groupresponse = groupresponse_tmp;
+                    $.ajax({
+                        method: "GET",
+                        url: groupurl,
+                        dataType: 'json',
+                        success: function (groupresponse_tmp) {
+                            groupresponse = groupresponse_tmp;
 
 
 
+                            //now use whoami to get the user's profile ID as we can't use the replace string in content
 
-                                //now use whoami to get the user's profile ID as we can't use the replace string in content
+                            whoamiurl = "/d2l/api/lp/1.22/users/whoami";
 
-                                whoamiurl = "/d2l/api/lp/1.22/users/whoami";
+                            $.ajax({
+                                method: "GET",
+                                url: whoamiurl,
+                                dataType: 'json',
+                                success: function (whoamiresponse_tmp) {
+                                    whoamiresponse = whoamiresponse_tmp;
 
-                                $.ajax({
-                                    method: "GET",
-                                    url: whoamiurl,
-                                    dataType: 'json',
-                                    success: function (whoamiresponse_tmp) {
-                                        whoamiresponse = whoamiresponse_tmp;
+                                    //console.log(whoamiresponse);
 
-                                        //console.log(whoamiresponse);
-
-                                        //console.log(groupresponse);
-                                        userid = parseInt(whoamiresponse["Identifier"]);
-                                        //console.log(userid);
-
-
-                                        //loop through groupresponse, try to find the current user's ID in the enrollments
+                                    //console.log(groupresponse);
+                                    userid = parseInt(whoamiresponse["Identifier"]);
+                                    //console.log(userid);
 
 
-                                        mygroup = -1;
-                                        mygroupscount = 0;
-                                        for (g = 0; g < groupresponse.length; g++) {
-                                            //console.log(groupresponse[g].Enrollments);
+                                    //loop through groupresponse, try to find the current user's ID in the enrollments
 
-                                            //console.log("indexof :"+groupresponse[g].Enrollments.indexOf(userid));
+                                    mygroup = -1;
+                                    mygroupscount = 0;
+                                    for (g = 0; g < groupresponse.length; g++) {
+                                        //console.log(groupresponse[g].Enrollments);
 
-                                            if (groupresponse[g].Enrollments.indexOf(userid) != -1) {
+                                        //console.log("indexof :"+groupresponse[g].Enrollments.indexOf(userid));
 
-                                                mygroup = g;
-                                                mygroupname = groupresponse[g].Name;
-                                                mygroupscount++;
+                                        if (groupresponse[g].Enrollments.indexOf(userid) != -1) {
 
+                                            mygroup = g;
+                                            mygroupname = groupresponse[g].Name;
+                                            mygroupscount++;
 
-
-                                            } else {
-                                                //	console.log("no match");
-
-                                            }
-
-                                        } //end for g
-
-
-                                        if (mygroupscount == 0) {
-                                            $("#peeroutput").html("You have not been allocated to a group. Please contact your lecturer");
+                                        } else {
+                                            //	console.log("no match");
 
                                         }
 
-                                        if (mygroupscount > 1) {
-                                            $("#peeroutput").html("You have been allocated to more than one group. Please contact your lecturer.");
+                                    } //end for g
 
+
+                                    if (mygroupscount == 0) {
+                                        $("#peeroutput").html("You have not been allocated to a group. Please contact your lecturer");
+
+                                    }
+
+                                    if (mygroupscount > 1) {
+                                        $("#peeroutput").html("You have been allocated to more than one group. Please contact your lecturer.");
+
+                                    }
+
+                                    if (mygroupscount == 1) {
+
+                                        enrollments = groupresponse[mygroup].Enrollments;
+
+
+                                        //console.log(enrollments.length);
+                                        if (selfassess) {
+
+                                            groupsize = enrollments.length;
+                                        } else {
+
+                                            groupsize = enrollments.length - 1;
                                         }
 
-                                        if (mygroupscount == 1) {
+                                        //get the classlist
 
-                                            enrollments = groupresponse[mygroup].Enrollments;
+                                        classlisturl = "/d2l/api/bas/1.1/orgunits/" + OrgUnitId + "/classlist/";
 
+                                        getClasslist(classlisturl).then(classlistresponse_tmp => {
 
-                                            //console.log(enrollments.length);
-                                            if (selfassess) {
-
-                                                groupsize = enrollments.length;
-                                            } else {
-
-                                                groupsize = enrollments.length - 1;
+                                            let submittedGrades = false;
+                                            
+                                            if(existingsumissions.length > 0){
+                                                existingsubmissions[existingsubmissions.length - 1];
                                             }
 
-                                            //get the classlist
+                                            classlistresponse = classlistresponse_tmp.Objects;
 
-                                            classlisturl = "/d2l/api/bas/1.1/orgunits/" + OrgUnitId + "/classlist/";
+                                            $("#peeroutput").html("<h2>" + mygroupname + "</h2>");
+                                            $("#peeroutput").append("<div id=\"instructions\"></div><form id=\"studentform\"><table class=\"table table-responsive\" ><thead><tr id=\"theadrow\"><th>Student</th></tr></thead><tbody id=\"scoretablebody\"></tbody><!--tfoot><tr id=\"totalrow\"><td colspan=\"\">Points Awarded:</td></td></tfoot--></table>");
 
-                                            getClasslist(classlisturl).then(classlistresponse_tmp => {
+                                            questionstxt = "";
 
-                                                classlistresponse = classlistresponse_tmp.Objects;
+                                            for (q = 1; q < questions.length; q++) {
+                                                $("#theadrow").append("<th>" + questions[q] + "</th>");
+                                                //$("#totalrow").append("<td><span id=\"total-" + q + "\">" + (groupsize * 100) + "</span></td>");
+                                            }
 
-                                            // });
-
-                                            // $.ajax({
-                                            //     method: "GET",
-                                            //     url: classlisturl,
-                                            //     dataType: 'json',
-                                            //     success: function (classlistresponse_tmp) {
-                                            //         classlistresponse = classlistresponse_tmp.Objects;
+                                            $("#theadrow").append("<th>Average</th>");
+                                            //$("#totalrow").append("<td>&nbsp</td>");
 
 
-                                                    $("#peeroutput").html("<h2>" + mygroupname + "</h2>");
-                                                    $("#peeroutput").append("<div id=\"instructions\"></div><form id=\"studentform\"><table class=\"table table-responsive\" ><thead><tr id=\"theadrow\"><th>Student</th></tr></thead><tbody id=\"scoretablebody\"></tbody><!--tfoot><tr id=\"totalrow\"><td colspan=\"\">Points Awarded:</td></td></tfoot--></table>");
-
-                                                    questionstxt = "";
-
-                                                    for (q = 1; q < questions.length; q++) {
-                                                        $("#theadrow").append("<th>" + questions[q] + "</th>");
-                                                        //$("#totalrow").append("<td><span id=\"total-" + q + "\">" + (groupsize * 100) + "</span></td>");
-                                                    }
-
-                                                    $("#theadrow").append("<th>Average</th>");
-                                                    //$("#totalrow").append("<td>&nbsp</td>");
+                                            $("#peeroutput").append("");
 
 
-                                                    $("#peeroutput").append("");
-
-
-                                                    $("#instructions").html(instructions);
+                                            $("#instructions").html(instructions);
 
 
 
-                                                    //loop through groupresponse[mygroup].Enrollments - the members of the current user's group - and display the voting grid
+                                            //loop through groupresponse[mygroup].Enrollments - the members of the current user's group - and display the voting grid
 
 
-                                                    for (e = 0; e < enrollments.length; e++) {
+                                            for (e = 0; e < enrollments.length; e++) {
 
-                                                        //console.log(enrollments[e]);
+                                                //console.log(enrollments[e]);
 
-                                                        //find this user's name from classlistreponse
+                                                //find this user's name from classlistreponse
 
-                                                        for (l = 0; l < classlistresponse.length; l++) {
-
-
-                                                            if (classlistresponse[l].UserId == enrollments[e]) {
-                                                                enrollments[e] = classlistresponse[l];
-                                                                enrollments[e].Total = 0;
-
-                                                                $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].UserId + "\" class=\"row-student\" rowspan=\"2\" data-studentid=\"" + classlistresponse[l].UserId + "\"><th>" + classlistresponse[l].DisplayName + "</th></tr>");
+                                                for (l = 0; l < classlistresponse.length; l++) {
 
 
-                                                                if (classlistresponse[l].UserId != userid || (classlistresponse[l].UserId == userid && selfassess == true)) {
+                                                    if (classlistresponse[l].UserId == enrollments[e]) {
+                                                        enrollments[e] = classlistresponse[l];
+                                                        enrollments[e].Total = 0;
 
-                                                                    for (q = 1; q < questions.length; q++) {
-
-                                                                        $("#row-" + classlistresponse[l].UserId).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"100\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
-
-                                                                    }
-
-                                                                    $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">100</span></td>");
-
-                                                                    if (commentfields == true) {
-                                                                        $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].UserId + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].DisplayName + "\"></td></tr>");
-                                                                    }
-
-                                                                } else {
-                                                                    //self assess turned off
-                                                                    $("#row-" + classlistresponse[l].UserId).append("<td colspan=\"" + (questions.length + 1) + "\">You are not able to rate your own contribution</td>");
-                                                                }
-
-                                                            } //end if
+                                                        $("#scoretablebody").append("<tr id=\"row-" + classlistresponse[l].UserId + "\" class=\"row-student\" rowspan=\"2\" data-studentid=\"" + classlistresponse[l].UserId + "\"><th>" + classlistresponse[l].DisplayName + "</th></tr>");
 
 
+                                                        if (classlistresponse[l].UserId != userid || (classlistresponse[l].UserId == userid && selfassess == true)) {
 
-                                                        } //end for l
+                                                            for (q = 1; q < questions.length; q++) {
+
+                                                                $("#row-" + classlistresponse[l].UserId).append("<td><inphut type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"100\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
+
+                                                            }
+
+                                                            $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">100</span></td>");
+
+                                                            if (commentfields == true) {
+                                                                $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].UserId + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].DisplayName + "\"></td></tr>");
+                                                            }
+
+                                                        } else {
+                                                            //self assess turned off
+                                                            $("#row-" + classlistresponse[l].UserId).append("<td colspan=\"" + (questions.length + 1) + "\">You are not able to rate your own contribution</td>");
+                                                        }
+
+                                                    } //end if
+
+
+
+                                                } //end for l
 
 
 
 
-                                                    } //end for e
+                                            } //end for e
 
 
 
-                                                    //submit button
-                                                    $("#peeroutput").append("<div id=\"buttoncontainer\"><div id=\"validationmsg\"></div><button id=\"studentsubmitbutton\" onclick=\"studentsubmit()\">Submit Scores</button></div>");
+                                            //submit button
+                                            $("#peeroutput").append("<div id=\"buttoncontainer\"><div id=\"validationmsg\"></div><button id=\"studentsubmitbutton\" onclick=\"studentsubmit()\">Submit Scores</button></div>");
+
+                                        }); //end ajax classlist
+
+                                    }//end if mygroups==1
 
 
-                                                //} //end success classlist
-                                            }); //end ajax classlist
-
-                                        }//end if mygroups==1
-
-
-                                    } //end success whoami
-                                }); //end ajax whoami
-
-
-
-                            } //end success grouplist
-                        }); //end ajax grouplist
-
-
-                    } else { // if already submitted
-
-                        //already submitted	
+                                } //end success whoami
+                            }); //end ajax whoami
 
 
 
-                        $("#peeroutput").html("<p>You have already submitted your peer evaluation.</p>");
+                        } //end success grouplist
+                    }); //end ajax grouplist
 
 
-                    } //end if already submitted
-
-
-
+                    
 
                 } //end success existingsubmission
             }) //end ajax existingsubmission
