@@ -138,10 +138,39 @@ $.ajax({
 
                                         getClasslist(classlisturl).then(classlistresponse_tmp => {
 
-                                            let submittedGrades = false;
+                                            let studentratings = false;
                                             
                                             if(existingsumissions.length > 0){
-                                                existingsubmissions[existingsubmissions.length - 1];
+
+                                                studentratings = [];
+                                               
+                                                let comment = existingsubmissions[0].Submissions[existingsubmissions.length - 1].Comment.Text;
+
+                                                for (r of comment.split("$")) {
+
+                                                    let ratingdetail = studentratings[r].split("^");
+
+                                                    let q_id = ratingdetail[0].split('-');
+                                                    let q = q_id[0];
+                                                    let student = q_id[1];
+                                                    
+                                                    if (r.substring(0, 1) == "q") {
+
+                                                        studentratings[student][q] = parseInt(ratingdetail[1]);
+                                                        
+                                                        if('totalmarks' in studentratings[student]){
+                                                            studentratings[student]['totalmarks'] += parseInt(ratingdetail[1]);
+                                                            studentratings[student]['totalratings']++;
+                                                        }else{
+                                                            studentratings[student]['totalmarks'] = parseInt(ratingdetail[1]);
+                                                            studentratings[student]['totalratings'] = 1;
+                                                        }    
+
+                                                    } else if(r.substring(0, 1) == "C") {
+                                                        studentratings[student]['comment'] = ratingdetail[1];
+                                                    }
+
+                                                } //end for r
                                             }
 
                                             classlistresponse = classlistresponse_tmp.Objects;
