@@ -148,13 +148,15 @@ $.ajax({
 
                                                 for (r of comment.split("$")) {
 
-                                                    let ratingdetail = studentratings[r].split("^");
+                                                    let ratingdetail = r.split("^");
 
                                                     let q_id = ratingdetail[0].split('-');
                                                     let q = q_id[0];
                                                     let student = q_id[1];
                                                     
                                                     if (r.substring(0, 1) == "q") {
+
+                                                        q = q.substring(1);
 
                                                         studentratings[student][q] = parseInt(ratingdetail[1]);
                                                         
@@ -176,6 +178,13 @@ $.ajax({
                                             classlistresponse = classlistresponse_tmp.Objects;
 
                                             $("#peeroutput").html("<h2>" + mygroupname + "</h2>");
+
+                                            $("#peeroutput").append('<p class="deadline">Last day to submit your responses: ' + deadline + '</p>');
+
+                                            if(studentratings){
+                                                $("#peeroutput").append("<p>You have already submitted your response to this peer assessment activity. You may review or change your responses.</p>");
+                                            }
+
                                             $("#peeroutput").append("<div id=\"instructions\"></div><form id=\"studentform\"><table class=\"table table-responsive\" ><thead><tr id=\"theadrow\"><th>Student</th></tr></thead><tbody id=\"scoretablebody\"></tbody><!--tfoot><tr id=\"totalrow\"><td colspan=\"\">Points Awarded:</td></td></tfoot--></table>");
 
                                             questionstxt = "";
@@ -219,14 +228,17 @@ $.ajax({
 
                                                             for (q = 1; q < questions.length; q++) {
 
-                                                                $("#row-" + classlistresponse[l].UserId).append("<td><inphut type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"100\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
+                                                                let value = (classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : 100);
+                                                                $("#row-" + classlistresponse[l].UserId).append("<td><inphut type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"" + value + "\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
 
                                                             }
 
-                                                            $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">100</span></td>");
+                                                            let average = (classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : 100);
+                                                            $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">" + average + "</span></td>");
 
                                                             if (commentfields == true) {
-                                                                $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].UserId + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].DisplayName + "\"></td></tr>");
+                                                                let comment = (classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId]['comment'] : '');
+                                                                $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].UserId + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].DisplayName + "\" value=\"" + comment + "\"></td></tr>");
                                                             }
 
                                                         } else {
