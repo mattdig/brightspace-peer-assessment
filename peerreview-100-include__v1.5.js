@@ -158,6 +158,8 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                         if (!(student in studentratings)) {
                                                             studentratings[student] = {};
+                                                            studentratings[student]['totalmarks'] = 0;
+                                                            studentratings[student]['totalratings'] = 0;
                                                         }
                                                         
                                                         if (r.substring(0, 1) == "q") {
@@ -166,14 +168,9 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             studentratings[student][q] = parseInt(ratingdetail[1]);
                                                             
-                                                            if('totalmarks' in studentratings[student]){
-                                                                studentratings[student]['totalmarks'] += parseInt(ratingdetail[1]);
-                                                                studentratings[student]['totalratings']++;
-                                                            }else{
-                                                                studentratings[student]['totalmarks'] = parseInt(ratingdetail[1]);
-                                                                studentratings[student]['totalratings'] = 1;
-                                                            }    
-
+                                                            studentratings[student]['totalmarks'] += parseInt(ratingdetail[1]);
+                                                            studentratings[student]['totalratings']++;
+                                                            
                                                         } else if(r.substring(0, 1) == "C") {
                                                             studentratings[student]['comment'] = ratingdetail[1];
                                                         }
