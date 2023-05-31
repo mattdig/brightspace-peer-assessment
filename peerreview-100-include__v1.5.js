@@ -148,13 +148,17 @@ getAssignment(assignment).then(assignmentObject => {
                                                 
                                                     let comment = existingsubmissions[0].Submissions[existingsubmissions.length - 1].Comment.Text;
 
-                                                    for (r of comment.split("$")) {
+                                                    for (rating of comment.split("$")) {
 
-                                                        let ratingdetail = r.split("^");
+                                                        let ratingdetail = rating.split("^");
 
                                                         let q_id = ratingdetail[0].split('-');
                                                         let q = q_id[0];
                                                         let student = q_id[1];
+
+                                                        if (!(student in studentratings)) {
+                                                            studentratings[student] = {};
+                                                        }
                                                         
                                                         if (r.substring(0, 1) == "q") {
 
