@@ -552,7 +552,7 @@
 
 
 
-							assignjson = '{"CategoryId": null,"Name": "' + nameprefix + clean($("#activityname").val()) + ' (Peer Assessment)","Assessment": null,"CustomInstructions": {"Content": "Please do not submit anything to this Assignment!","Type": "Text"},"Availability": {  "StartDate": null,"EndDate": null},"GroupTypeId": null,"DueDate": null,"DisplayInCalendar": false,"NotificationEmail": null,"IsHidden": false}';
+							assignjson = '{"CategoryId": null,"Name": "' + nameprefix + clean($("#activityname").val()) + ' (Peer Assessment)","Assessment": null,"CustomInstructions": {"Content": "Please do not submit anything to this Assignment!","Type": "Text"},"Availability": {  "StartDate": null,"EndDate": "' + enddate + '"},"GroupTypeId": null,"DueDate": null,"DisplayInCalendar": false,"NotificationEmail": null,"IsHidden": false}';
 
 							console.log("assignjson:" + assignjson);
 

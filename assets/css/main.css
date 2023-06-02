@@ -2028,7 +2028,7 @@ footer {
   color: #565A5C;
 }
 
-.gray-bg {;
+.gray-bg {
   background-color: #F2F3F5;
 }
 
@@ -2066,4 +2066,14 @@ opacity:1 !important;
   -ms-transform: rotateY(0deg);
 }
 
+}
+
+#buttoncontainer{
+  margin-top: 20px;
+  font-weight: bold;
+  font-size:120%;
+}
+
+.rating_error{
+  background-color: lightcoral;
 }

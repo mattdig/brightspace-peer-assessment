@@ -10,6 +10,16 @@ button.btn-primary:active, button.btn-secondary:active {
   border-bottom: none;
 }
 
+#buttoncontainer{
+  margin-top: 20px;
+  font-weight: bold;
+  font-size:120%;
+}
+
+.rating_error{
+  background-color: rgb(244, 167, 167);
+}
+
 @media screen and (max-width: 767px) {
   .table-responsive {
     border: none;

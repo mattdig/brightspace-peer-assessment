@@ -23,7 +23,16 @@ var whoamiresponse;
 var groupsize;
 var userid;
 
+let deadline = null;
+
 getAssignment(assignment).then(assignmentObject => {
+
+    let deadlineString = "No end date set";
+    
+    if(assignmentObject.Availability.EndDate !== null){
+        deadline = new Date(assignmentObject.Availability.EndDate);
+        deadlineString = deadline.getMonthName() + ' ' + deadline.getDate() + ', ' + deadline.getFullYear() + ' at ' + (deadline.getHours() > 12 ? deadline.getHours() - 12 : deadline.getHours()) + ':' + (deadline.getMinutes() < 10 ? '0' : '') + deadline.getMinutes() + ' ' + (deadline.getHours() > 12 ? 'PM' : 'AM');
+    }
 
     $.ajax({
         method: "GET",
@@ -142,11 +151,11 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                 let studentratings = false;
                                                 
-                                                if(existingsumissions.length > 0){
+                                                if(existingsubmissions.length > 0){
 
                                                     studentratings = [];
                                                 
-                                                    let comment = existingsubmissions[0].Submissions[existingsubmissions.length - 1].Comment.Text;
+                                                    let comment = existingsubmissions[0].Submissions[existingsubmissions[0].Submissions.length - 1].Comment.Text;
 
                                                     for (rating of comment.split("$")) {
 
@@ -162,7 +171,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                             studentratings[student]['totalratings'] = 0;
                                                         }
                                                         
-                                                        if (r.substring(0, 1) == "q") {
+                                                        if (q.substring(0, 1) == "q") {
 
                                                             q = q.substring(1);
 
@@ -171,7 +180,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                             studentratings[student]['totalmarks'] += parseInt(ratingdetail[1]);
                                                             studentratings[student]['totalratings']++;
                                                             
-                                                        } else if(r.substring(0, 1) == "C") {
+                                                        } else if(q.substring(0, 1) == "C") {
                                                             studentratings[student]['comment'] = ratingdetail[1];
                                                         }
 
@@ -182,7 +191,7 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                 $("#peeroutput").html("<h2>" + mygroupname + "</h2>");
 
-                                                $("#peeroutput").append('<p class="header-three">Last day to submit your responses: ' + deadline + '</p>');
+                                                $("#peeroutput").append('<p class="header-three">Last day to submit your responses: ' + deadlineString + '</p>');
 
                                                 if(studentratings){
                                                     $("#peeroutput").append("<p>You have already submitted your response to this peer assessment activity. You may review or change your responses.</p>");
@@ -231,16 +240,16 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                                 for (q = 1; q < questions.length; q++) {
 
-                                                                    let value = (classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : 100);
-                                                                    $("#row-" + classlistresponse[l].UserId).append("<td><inphut type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"" + value + "\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
+                                                                    let value = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : 100);
+                                                                    $("#row-" + classlistresponse[l].UserId).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"" + value + "\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
 
                                                                 }
 
-                                                                let average = (classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : 100);
+                                                                let average = (studentratings !== false && classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : 100);
                                                                 $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">" + average + "</span></td>");
 
                                                                 if (commentfields == true) {
-                                                                    let comment = (classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId]['comment'] : '');
+                                                                    let comment = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId]['comment'] : '');
                                                                     $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].UserId + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].DisplayName + "\" value=\"" + comment + "\"></td></tr>");
                                                                 }
 
@@ -263,7 +272,7 @@ getAssignment(assignment).then(assignmentObject => {
 
 
                                                 //submit button
-                                                $("#peeroutput").append("<div id=\"buttoncontainer\"><div id=\"validationmsg\"></div><button id=\"studentsubmitbutton\" onclick=\"studentsubmit()\">Submit Scores</button></div>");
+                                                $("#peeroutput").append("<div id=\"buttoncontainer\"><div id=\"validationmsg\"></div><button class=\"btn-primary\" id=\"studentsubmitbutton\" onclick=\"studentsubmit()\">Submit Scores</button></div>");
 
                                             }); //end ajax classlist
 
@@ -356,6 +365,8 @@ getAssignment(assignment).then(assignmentObject => {
                                 //set up the basic table
 
                                 $("#peeroutput").html("<p class=\"well\">The Student view of this screen allows them to register their Peer Assessment. This view shows you the feedback provided.</p>");
+
+                                $("#peeroutput").append('<p class="header-three">Last day for students to submit their responses: ' + deadlineString + '</p>');
 
 
                                 $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th>Org Defined ID</th><th>Peer Assessment submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
@@ -790,6 +801,14 @@ function edittoggle() {
 
 function savetogradebook() {
 
+    let now = new Date();
+
+    if(now <= deadline){
+        if(!confirm("The deadline for students to submit their responses has not yet passed. Are you sure you want to publish these grades to the Gradebook?")){
+            return false;
+        }
+    }
+
     var token;
 
     $.ajax({
@@ -930,7 +949,7 @@ function validate() {
 
     //set bgcolour to white
 
-    $(".ratingfield").css("background-color", "FFFFFF");
+    $(".ratingfield").removeClass("rating_error");
 
 
     //loop through each question's fields
@@ -951,8 +970,8 @@ function validate() {
 
                     validationerrors++;
 
-                    $(field).css("background-color", "#f098e5");
-                    $("#validationmsg").html("You must enter a number for each student's score between 0 and 100, wihtout decimal places.");
+                    $(field).addClass("rating_error");
+                    $("#validationmsg").html("You must enter a number for each student's score between 0 and 100, without decimal places.");
 
                     $('#average-' + studentId).html("N/A");
                     average = false;
@@ -1246,7 +1265,13 @@ function studentsubmit() {
 
                     success: function (response) {
                         //console.log(response);
-                        $("#buttoncontainer").html("<p>Thank you. Your ratings have been received.</p>");
+                        $('#studentsubmitbutton').hide();
+                        $("#validationmsg").html("<p>Thank you. Your responses have been received. You may review or modify your responses until the deadline.</p>");
+
+                        setTimeout(function () {
+                            $("#validationmsg").html("");
+                            $('#studentsubmitbutton').show();
+                        }, 5000);
 
                     },
                     error: function (response) {
@@ -1282,10 +1307,7 @@ function getAssignment(assignmentId){
             url: "/d2l/api/le/1.40/" + OrgUnitId + "/dropbox/folders/" + assignmentId,
             dataType: 'json',
             success: function (response) {
-                let assignment = response.Objects.find((obj) => {
-                    return obj.Identifier == assignmentId;
-                });
-                resolve(assignment);
+                resolve(response);
             },
             error: function (response) {
                 reject(response);
@@ -1379,3 +1401,20 @@ function clean(input) {
 
     return output;
 }
+
+Date.prototype.getMonthName = function(lang) {
+    lang = lang && (lang in Date.locale) ? lang : 'en';
+    return Date.locale[lang].month_names[this.getMonth()];
+};
+
+Date.prototype.getMonthNameShort = function(lang) {
+    lang = lang && (lang in Date.locale) ? lang : 'en';
+    return Date.locale[lang].month_names_short[this.getMonth()];
+};
+
+Date.locale = {
+    en: {
+       month_names: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+       month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    }
+};
