@@ -397,7 +397,7 @@ getAssignment(assignment).then(assignmentObject => {
 
 
 
-                                $("#headrow").append("<th>Total peer score</th>");
+                                $("#headrow").append("<th>Average peer score</th>");
 
 
                                 for (g = 0; g < groupresponse.length; g++) {
