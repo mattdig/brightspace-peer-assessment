@@ -25,9 +25,10 @@ var userid;
 
 let deadline = null;
 
-if(typeof(MAXGRADE) == 'undefined'){
-    var MAXGRADE = 100;
+if(typeof(criteriaMaxPoints) == 'undefined'){
+    var criteriaMaxPoints = 100;
 }
+let gradeItemMaxPoints = 100;
 
 getAssignment(assignment).then(assignmentObject => {
 
@@ -244,12 +245,12 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                                 for (q = 1; q < questions.length; q++) {
 
-                                                                    let value = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : MAXGRADE);
+                                                                    let value = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : criteriaMaxPoints);
                                                                     $("#row-" + classlistresponse[l].UserId).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"" + value + "\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
 
                                                                 }
 
-                                                                let average = (studentratings !== false && classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : MAXGRADE);
+                                                                let average = (studentratings !== false && classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : criteriaMaxPoints);
                                                                 $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">" + average + "</span></td>");
 
                                                                 if (commentfields == true) {
@@ -722,63 +723,84 @@ function getstudentname(id) {
 
 function enableexport() {
 
-    //check that the grade item exists
+    //check that the grade item is valid
 
     if (typeof GradeItemId === 'undefined' || GradeItemId === null) {
         $("#peeroutput").append("<p>Export to grade item unavailable. Grade item not specified.</p>");
     } else {
-        //get the scores for this grade object.
 
-        gradepullurl = "/d2l/api/le/1.37/" + OrgUnitId + "/grades/" + GradeItemId + "/values/?isGraded=true";
+        // check if the grade item exists
+
+        let gradeItemUrl = "/d2l/api/le/1.37/" + OrgUnitId + "/grades/" + GradeItemId;
 
         $.ajax({
             method: "GET",
-            url: gradepullurl,
+            url: gradeItemUrl,
             dataType: 'json',
-            error: function (existinggrades) {
+            error: function (gradeItem) {
                 $("#peeroutput").append("<p>Export to grade item unavailable. Grade item does not exist.</p>");
             },
-            success: function (existinggrades) {
+            success: function (gradeItem) {
+
+                gradeItemMaxPoints = gradeItem.MaxPoints;
+
+                //get the scores for this grade object.
+
+                let gradepullurl = "/d2l/api/le/1.37/" + OrgUnitId + "/grades/" + GradeItemId + "/values/?isGraded=true";
+
+                $.ajax({
+                    method: "GET",
+                    url: gradepullurl,
+                    dataType: 'json',
+                    error: function (existinggrades) {
+                        $("#peeroutput").append("<p>Export to grade item unavailable. Grade item does not exist.</p>");
+                    },
+                    success: function (existinggrades) {
+
+                        //add checkboxes
+                        $("#headrow").append("<th><input id=\"selectall\" type=\"checkbox\" onclick=\"selectall()\" aria-label=\"Select all for publishing\" /></th>");
+                        //console.log("**");
+                        //console.log(existinggrades);
+                        for (g = 0; g < groupresponse.length; g++) {
+
+                            for (e = 0; e < groupresponse[g].Enrollments.length; e++) {
+                                $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"checkboxwrapper-" + groupresponse[g].Enrollments[e] + "\" style=\"text-align:center\"><input id=\"checkbox-" + groupresponse[g].Enrollments[e] + "\" type=\"checkbox\" class=\"studentselect\" value=\"" + groupresponse[g].Enrollments[e] + "\" aria-labelledby=\"name-" + groupresponse[g].Enrollments[e] + "\"/>&nbsp;</span></td>");
+                            } //end for e
+                        } //end for g
 
 
-                //add checkboxes
-                $("#headrow").append("<th><input id=\"selectall\" type=\"checkbox\" onclick=\"selectall()\" aria-label=\"Select all for publishing\" /></th>");
-                //console.log("**");
-                //console.log(existinggrades);
-                for (g = 0; g < groupresponse.length; g++) {
-
-                    for (e = 0; e < groupresponse[g].Enrollments.length; e++) {
-                        $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"checkboxwrapper-" + groupresponse[g].Enrollments[e] + "\" style=\"text-align:center\"><input id=\"checkbox-" + groupresponse[g].Enrollments[e] + "\" type=\"checkbox\" class=\"studentselect\" value=\"" + groupresponse[g].Enrollments[e] + "\" aria-labelledby=\"name-" + groupresponse[g].Enrollments[e] + "\"/>&nbsp;</span></td>");
-                    } //end for e
-                } //end for g
+                        //get existing grades, display warning if already populated
+                        if (existinggrades.Objects) {
 
 
-                //get existing grades, display warning if already populated
-                if (existinggrades.Objects) {
-                    for (eg = 0; eg < existinggrades.Objects.length; eg++) {
 
-                        $("#checkboxwrapper-" + existinggrades.Objects[eg].User.Identifier).append(alerticon);
+                            for (eg = 0; eg < existinggrades.Objects.length; eg++) {
 
-                    }
-                }
+                                $("#checkboxwrapper-" + existinggrades.Objects[eg].User.Identifier).append(alerticon);
+
+                            }
+                        }
 
 
 
 
-                $("#exportbuttonplaceholder").append("<h3>Publish marks to Gradebook</h3>");
-                $("#exportbuttonplaceholder").append("<p>Use the checkmarks in the table above to select which students' feedback you wish to publish to the Gradebook.</p>");
+                        $("#exportbuttonplaceholder").append("<h3>Publish marks to Gradebook</h3>");
+                        $("#exportbuttonplaceholder").append("<p>Use the checkmarks in the table above to select which students' feedback you wish to publish to the Gradebook.</p>");
 
 
 
-                if (commentfields == true) {
-                    $("#exportbuttonplaceholder").append("<p><input type=\"checkbox\" id=\"includecomments\" onchange=\"edittoggle()\"/> <label for=\"includecomments\">Include comments below?</label> Selecting this option will allow you to edit the version of the comment which is published to the student, however you will still see the unedited comment here.</p>");
-                }
+                        if (commentfields == true) {
+                            $("#exportbuttonplaceholder").append("<p><input type=\"checkbox\" id=\"includecomments\" onchange=\"edittoggle()\"/> <label for=\"includecomments\">Include comments below?</label> Selecting this option will allow you to edit the version of the comment which is published to the student, however you will still see the unedited comment here.</p>");
+                        }
 
 
-                $("#exportbuttonplaceholder").append("<p><input type=\"button\" value=\"Publish selected feedback to Gradebook\" onclick=\"savetogradebook()\"></p>");
+                        $("#exportbuttonplaceholder").append("<p><input type=\"button\" value=\"Publish selected feedback to Gradebook\" onclick=\"savetogradebook()\"></p>");
 
-            } //end success existinggrades
-        }) //end ajax existinggrades
+                    } //end success existinggrades
+                }); //end ajax existinggrades
+
+            } //end success gradeItem
+        }); //end ajax gradeItem
     } //end if
 } //end enableexport function
 
@@ -871,8 +893,11 @@ function savetogradebook() {
                     }
 
 
+                    let gradePoints = intVal($("#total-" + this.value).text());
 
-                    gradejson = '{"Comments": { "Content" : "' + commentstring + '","Type": "Html" },	"PrivateComments": { "Content" : "API value","Type": "Text"},"GradeObjectType": "1","PointsNumerator": ' + $("#total-" + this.value).text() + '}';
+                    gradePoints = gradePoints / criteriaMaxPoints * gradeItemMaxPoints;
+
+                    gradejson = '{"Comments": { "Content" : "' + commentstring + '","Type": "Html" },	"PrivateComments": { "Content" : "API value","Type": "Text"},"GradeObjectType": "1","PointsNumerator": ' + gradePoints + '}';
                     thisid = this.value;
 
                     ////console.log(gradejson);
@@ -970,12 +995,12 @@ function validate() {
     
                 let intVal = parseInt($(field).val());
 
-                if (intVal != $(field).val() || intVal < 0 || intVal > MAXGRADE) {
+                if (intVal != $(field).val() || intVal < 0 || intVal > criteriaMaxPoints) {
 
                     validationerrors++;
 
                     $(field).addClass("rating_error");
-                    $("#validationmsg").html("You must enter a number for each student's score between 0 and MAXGRADE, without decimal places.");
+                    $("#validationmsg").html("You must enter a number for each student's score between 0 and " + criteriaMaxPoints + ", without decimal places.");
 
                     $('#average-' + studentId).html("N/A");
                     average = false;
