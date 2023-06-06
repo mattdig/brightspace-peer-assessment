@@ -25,6 +25,10 @@ var userid;
 
 let deadline = null;
 
+if(typeof(MAXGRADE) == 'undefined'){
+    var MAXGRADE = 100;
+}
+
 getAssignment(assignment).then(assignmentObject => {
 
     let deadlineString = "No end date set";
@@ -240,12 +244,12 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                                 for (q = 1; q < questions.length; q++) {
 
-                                                                    let value = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : 100);
+                                                                    let value = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : MAXGRADE);
                                                                     $("#row-" + classlistresponse[l].UserId).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"" + value + "\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
 
                                                                 }
 
-                                                                let average = (studentratings !== false && classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : 100);
+                                                                let average = (studentratings !== false && classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : MAXGRADE);
                                                                 $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">" + average + "</span></td>");
 
                                                                 if (commentfields == true) {
@@ -966,12 +970,12 @@ function validate() {
     
                 let intVal = parseInt($(field).val());
 
-                if (intVal != $(field).val() || intVal < 0 || intVal > 100) {
+                if (intVal != $(field).val() || intVal < 0 || intVal > MAXGRADE) {
 
                     validationerrors++;
 
                     $(field).addClass("rating_error");
-                    $("#validationmsg").html("You must enter a number for each student's score between 0 and 100, without decimal places.");
+                    $("#validationmsg").html("You must enter a number for each student's score between 0 and MAXGRADE, without decimal places.");
 
                     $('#average-' + studentId).html("N/A");
                     average = false;
