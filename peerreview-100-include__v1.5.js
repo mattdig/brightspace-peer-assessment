@@ -382,7 +382,7 @@ getAssignment(assignment).then(assignmentObject => {
                                 for (q = 1; q < questions.length; q++) {
 
                                     $("#headrow").append("<th style=\"display:none\">" + questions[q] + " (total)</th>");
-                                    $("#headrow").append("<th>" + questions[q] + " (avg %)</th>");
+                                    $("#headrow").append("<th>" + questions[q] + " (avg / " + criteriaMaxPoints + ")</th>");
 
                                     $("#votesheadrow").append("<th>" + questions[q] + " (total)</th>");
 
@@ -893,7 +893,7 @@ function savetogradebook() {
                     }
 
 
-                    let gradePoints = intVal($("#total-" + this.value).text());
+                    let gradePoints = parseInt($("#total-" + this.value).text());
 
                     gradePoints = gradePoints / criteriaMaxPoints * gradeItemMaxPoints;
 
