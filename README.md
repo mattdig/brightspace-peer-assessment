@@ -3,9 +3,11 @@ An updated version of the Brightspace Peer Assessment tool, originally made at t
 
 Original article: https://community.brightspace.com/s/article/Developer-Spotlight-Building-Peer-Assessment-within-Brightspace
 
-Updates from the original:
-* Grades are now from 0-100 and the totals don't have to add up (not an option, just a change)
-* The default grade can be set to 0 or 100 in PeerSetup.htm (we preferred 0)
+Changes from the original:
+* Grades are averages instead of totals
+* Students can review and resubmit responses until the deadline
+* Criteria can be out of any number from 1 to 100
+* Target grade item can be any number from 1 to 100
 * Course codes with spaces are supported
 * Grades can be published to the gradebook without comments
 
@@ -16,8 +18,6 @@ First, in PeerSetup.htm adjust the following settings as needed:
 defaultmodule = "Assessment";
 
 defaultinstructions = "Peer Assessment allows you to adjust the scores of your team members to reflect their contribution to the group. Each category can be graded from 0 to 100 points.\r\n\r\nStaff involved in the module will be able to see your ratings but your peers will only see them in an anonymous form.";
-
-defaultgrade = 0;
 
 nameprefix = "";
 
