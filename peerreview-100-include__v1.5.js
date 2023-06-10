@@ -202,6 +202,8 @@ getAssignment(assignment).then(assignmentObject => {
                                                     $("#peeroutput").append("<p>You have already submitted your response to this peer assessment activity. You may review or change your responses.</p>");
                                                 }
 
+                                                $("#peeroutput").append('<p class="header-four">Ratings are all out of ' + criteriaMaxPoints + '.</p>');
+
                                                 $("#peeroutput").append("<div id=\"instructions\"></div><form id=\"studentform\"><table class=\"table table-responsive\" ><thead><tr id=\"theadrow\"><th>Student</th></tr></thead><tbody id=\"scoretablebody\"></tbody><!--tfoot><tr id=\"totalrow\"><td colspan=\"\">Points Awarded:</td></td></tfoot--></table>");
 
                                                 questionstxt = "";
