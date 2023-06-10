@@ -383,10 +383,10 @@ getAssignment(assignment).then(assignmentObject => {
 
                                 for (q = 1; q < questions.length; q++) {
 
-                                    $("#headrow").append("<th style=\"display:none\">" + questions[q] + " (total)</th>");
+                                    $("#headrow").append("<th style=\"display:none\">" + questions[q] + "</th>");
                                     $("#headrow").append("<th>" + questions[q] + " (avg / " + criteriaMaxPoints + ")</th>");
 
-                                    $("#votesheadrow").append("<th>" + questions[q] + " (total)</th>");
+                                    $("#votesheadrow").append("<th>" + questions[q] + "</th>");
 
                                 }
 
@@ -417,8 +417,8 @@ getAssignment(assignment).then(assignmentObject => {
 
                                         }
 
-                                        //default total column to defulatgrade if no votes received
-                                        $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"total-" + groupresponse[g].Enrollments[e] + "\">0</span></td>");
+                                        //default average column to defulatgrade if no votes received
+                                        $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"average-" + groupresponse[g].Enrollments[e] + "\">0</span></td>");
 
                                     } //end for e
 
@@ -651,7 +651,7 @@ getAssignment(assignment).then(assignmentObject => {
 
 
                                                             //update total score
-                                                            newtotal = 0;
+                                                            let newtotal = 0;
 
                                                             for (q = 1; q < questions.length; q++) {
                                                                 //console.log(tmpsplit[1]);
@@ -663,13 +663,9 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             //console.log(newtotal + "/" + existingratings + "/" + questions.length);
 
-                                                            newtotal = Math.round((newtotal / existingratings) / (questions.length - 1));
+                                                            let averageScore = parseFloat((newtotal / existingratings) / (questions.length - 1).toFixed(2));
 
-
-
-                                                            $("#total-" + tmpsplit[1]).text(newtotal);
-
-
+                                                            $("#average-" + tmpsplit[1]).text(averageScore);
 
                                                         } //end for r
 
@@ -895,9 +891,10 @@ function savetogradebook() {
                     }
 
 
-                    let gradePoints = parseInt($("#total-" + this.value).text());
+                    let gradePoints = parseFloat($("#average-" + this.value).text());
 
-                    gradePoints = gradePoints / criteriaMaxPoints * gradeItemMaxPoints;
+                    // convert to grade item max points
+                    gradePoints = (gradePoints / criteriaMaxPoints * gradeItemMaxPoints).toFixed(2);
 
                     gradejson = '{"Comments": { "Content" : "' + commentstring + '","Type": "Html" },	"PrivateComments": { "Content" : "API value","Type": "Text"},"GradeObjectType": "1","PointsNumerator": ' + gradePoints + '}';
                     thisid = this.value;
