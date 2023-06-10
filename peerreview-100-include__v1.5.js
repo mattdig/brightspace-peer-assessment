@@ -383,10 +383,10 @@ getAssignment(assignment).then(assignmentObject => {
 
                                 for (q = 1; q < questions.length; q++) {
 
-                                    $("#headrow").append("<th style=\"display:none\">" + questions[q] + " (total)</th>");
+                                    $("#headrow").append("<th style=\"display:none\">" + questions[q] + "</th>");
                                     $("#headrow").append("<th>" + questions[q] + " (avg / " + criteriaMaxPoints + ")</th>");
 
-                                    $("#votesheadrow").append("<th>" + questions[q] + " (total)</th>");
+                                    $("#votesheadrow").append("<th>" + questions[q] + "</th>");
 
                                 }
 
