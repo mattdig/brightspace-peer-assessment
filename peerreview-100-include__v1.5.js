@@ -549,7 +549,7 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             ratingdetail = studentratings[r].split("^");
 
-                                                            //console.log(ratingdetail);
+                                                            console.log(ratingdetail);
 
 
                                                             //get existing value in field
@@ -641,7 +641,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                             //work out percentage
 
                                                             if (existingratings > 0) {
-                                                                pcscore = Math.round(existing / existingratings);
+                                                                pcscore = (existing / existingratings).toFixed(2);
                                                                 $("#p" + ratingdetail[0]).text(pcscore);
 
 
