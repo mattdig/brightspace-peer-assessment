@@ -252,7 +252,7 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                                 }
 
-                                                                let average = (studentratings !== false && classlistresponse[l].UserId in studentratings ? Math.round(studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']) : criteriaMaxPoints);
+                                                                let average = (studentratings !== false && classlistresponse[l].UserId in studentratings ? (studentratings[classlistresponse[l].UserId]['totalmarks'] / studentratings[classlistresponse[l].UserId]['totalratings']).toFixed(2) : criteriaMaxPoints);
                                                                 $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">" + average + "</span></td>");
 
                                                                 if (commentfields == true) {
@@ -663,7 +663,7 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             //console.log(newtotal + "/" + existingratings + "/" + questions.length);
 
-                                                            let averageScore = parseFloat((newtotal / existingratings) / (questions.length - 1).toFixed(2));
+                                                            let averageScore = ((newtotal / existingratings) / (questions.length - 1)).toFixed(2);
 
                                                             $("#average-" + tmpsplit[1]).text(averageScore);
 
