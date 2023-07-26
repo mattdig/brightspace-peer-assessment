@@ -549,7 +549,7 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             ratingdetail = studentratings[r].split("^");
 
-                                                            console.log(ratingdetail);
+                                                            //console.log(ratingdetail);
 
 
                                                             //get existing value in field
