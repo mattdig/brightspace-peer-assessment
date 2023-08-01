@@ -554,12 +554,12 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             //get existing value in field
 
-                                                            existing = parseInt($("#" + ratingdetail[0]).text());
+                                                            existing = parseFloat($("#" + ratingdetail[0]).text());
 
                                                             //add this rating and update
 
-                                                            $("#" + ratingdetail[0]).text(existing + parseInt(ratingdetail[1]));
-                                                            existing = existing + parseInt(ratingdetail[1]);
+                                                            $("#" + ratingdetail[0]).text(existing + parseFloat(ratingdetail[1]));
+                                                            existing = existing + parseFloat(ratingdetail[1]);
 
                                                             //split it again at the - to get the student ID
 
