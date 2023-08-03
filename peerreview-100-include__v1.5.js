@@ -180,9 +180,9 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             q = q.substring(1);
 
-                                                            studentratings[student][q] = parseInt(ratingdetail[1]);
+                                                            studentratings[student][q] = parseFloat(ratingdetail[1]).toFixed(2);
                                                             
-                                                            studentratings[student]['totalmarks'] += parseInt(ratingdetail[1]);
+                                                            studentratings[student]['totalmarks'] += parseFloat(ratingdetail[1]).toFixed(2);
                                                             studentratings[student]['totalratings']++;
                                                             
                                                         } else if(q.substring(0, 1) == "C") {
@@ -512,7 +512,7 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             ratingdetail = studentratings[r].split("^");
 
-                                                            totalmarks = totalmarks + parseInt(ratingdetail[1]);
+                                                            totalmarks = totalmarks + parseFloat(ratingdetail[1]).toFixed(2);
 
                                                         }
 
@@ -544,22 +544,20 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                         for (r = 0; r < studentratings.length - 1; r++) {
 
-
                                                             //split each rating at the comma
 
                                                             ratingdetail = studentratings[r].split("^");
 
                                                             //console.log(ratingdetail);
 
-
                                                             //get existing value in field
 
-                                                            existing = parseFloat($("#" + ratingdetail[0]).text());
+                                                            existing = parseFloat($("#" + ratingdetail[0]).text()).toFixed(2);
 
                                                             //add this rating and update
 
                                                             $("#" + ratingdetail[0]).text(existing + parseFloat(ratingdetail[1]));
-                                                            existing = existing + parseFloat(ratingdetail[1]);
+                                                            existing = existing + parseFloat(ratingdetail[1]).toFixed(2);
 
                                                             //split it again at the - to get the student ID
 
@@ -656,7 +654,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                             for (q = 1; q < questions.length; q++) {
                                                                 //console.log(tmpsplit[1]);
 
-                                                                newtotal = newtotal + parseInt($("#q" + q + "-" + tmpsplit[1]).text());
+                                                                newtotal = newtotal + parseFloat($("#q" + q + "-" + tmpsplit[1]).text()).toFixed(2);
                                                                 //console.log(newtotal);
                                                             } //end for q
 
@@ -992,9 +990,9 @@ function validate() {
     
             $(row).find('.ratingfield').each(function (fieldIndex, field) {
     
-                let intVal = parseInt($(field).val());
+                let floatVal = parseFloat($(field).val()).toFixed(2);
 
-                if (intVal != $(field).val() || intVal < 0 || intVal > criteriaMaxPoints) {
+                if (floatVal != $(field).val() || floatVal < 0 || floatVal > criteriaMaxPoints) {
 
                     validationerrors++;
 
@@ -1006,7 +1004,7 @@ function validate() {
 
                 } else {
 
-                    rowTotal += intVal;
+                    rowTotal += floatVal;
                     $(field).css("background-color", "FFFFFF");
                     
                 }
@@ -1245,7 +1243,7 @@ function studentsubmit() {
 
                 // change the filename as desired
 
-                var fileHeader = 'Content-Disposition: form-data; name="file"; filename="quickTest2.txt"\r\nContent-Type: text/plain';
+                var fileHeader = 'Content-Disposition: form-data; name="file"; filename="PeerAssessment.txt"\r\nContent-Type: text/plain';
 
                 // change the file content as desired
 
