@@ -180,9 +180,9 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             q = q.substring(1);
 
-                                                            studentratings[student][q] = parseFloat(ratingdetail[1]).toFixed(2);
+                                                            studentratings[student][q] = parseFloat(ratingdetail[1]);
                                                             
-                                                            studentratings[student]['totalmarks'] += parseFloat(ratingdetail[1]).toFixed(2);
+                                                            studentratings[student]['totalmarks'] += parseFloat(ratingdetail[1]);
                                                             studentratings[student]['totalratings']++;
                                                             
                                                         } else if(q.substring(0, 1) == "C") {
@@ -248,7 +248,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                                 for (q = 1; q < questions.length; q++) {
 
                                                                     let value = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId][q] : criteriaMaxPoints);
-                                                                    $("#row-" + classlistresponse[l].UserId).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"" + value + "\" size=\"4\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
+                                                                    $("#row-" + classlistresponse[l].UserId).append("<td><input type=\"text\" id=\"q" + q + "-" + classlistresponse[l].UserId + "\" value=\"" + value + "\" size=\"4\" maxlength=\"" + (criteriaMaxPoints >= 10 ? '5' : '4') + "\" class=\"q" + q + " ratingfield\" onchange=\"validate()\" aria-label=\"Score for student:" + classlistresponse[l].DisplayName + " ,for category: " + questions[q] + "\"/></td>");
 
                                                                 }
 
@@ -499,40 +499,6 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                     studentratings = comment.split("$");
 
-                                                    totalmarks = 0;
-
-                                                    totalratings = 0;
-
-                                                    for (r = 0; r < studentratings.length - 1; r++) {
-
-
-
-                                                        if (studentratings[r].substring(0, 1) == "q") {
-                                                            totalratings++
-
-                                                            ratingdetail = studentratings[r].split("^");
-
-                                                            totalmarks = totalmarks + parseFloat(ratingdetail[1]).toFixed(2);
-
-                                                        }
-
-
-                                                    } //end for r
-
-
-
-                                                    //console.log(totalmarks+"^"+totalratings);
-
-                                                    /*
-                                                    NOT THIS
-
-                                                    if (totalmarks != (totalratings * 100)) {
-
-                                                        validationerrors++;
-                                                        validationmsg = validationmsg = "<p>Ratings from student " + submissions[s].Entity.DisplayName + " rejected: Do not add up to 100 per question</p>";
-
-                                                    }*/
-
                                                     if (validationerrors > 0) {
 
                                                         $("#staffnotes").append(validationmsg);
@@ -552,12 +518,13 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                             //get existing value in field
 
-                                                            existing = parseFloat($("#" + ratingdetail[0]).text()).toFixed(2);
+                                                            existing = parseFloat($("#" + ratingdetail[0]).text());
 
                                                             //add this rating and update
+                                                            existing += parseFloat(ratingdetail[1]);
 
-                                                            $("#" + ratingdetail[0]).text(existing + parseFloat(ratingdetail[1]));
-                                                            existing = existing + parseFloat(ratingdetail[1]).toFixed(2);
+                                                            $("#" + ratingdetail[0]).text(existing.toFixed(2));
+                                                            
 
                                                             //split it again at the - to get the student ID
 
@@ -639,7 +606,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                             //work out percentage
 
                                                             if (existingratings > 0) {
-                                                                pcscore = (existing / existingratings).toFixed(2);
+                                                                pcscore = parseFloat(existing / existingratings).toFixed(2);
                                                                 $("#p" + ratingdetail[0]).text(pcscore);
 
 
@@ -654,7 +621,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                             for (q = 1; q < questions.length; q++) {
                                                                 //console.log(tmpsplit[1]);
 
-                                                                newtotal = newtotal + parseFloat($("#q" + q + "-" + tmpsplit[1]).text()).toFixed(2);
+                                                                newtotal = newtotal + parseFloat($("#q" + q + "-" + tmpsplit[1]).text());
                                                                 //console.log(newtotal);
                                                             } //end for q
 
@@ -990,19 +957,21 @@ function validate() {
     
             $(row).find('.ratingfield').each(function (fieldIndex, field) {
     
-                let floatVal = parseFloat($(field).val()).toFixed(2);
+                let floatVal = parseFloat($(field).val());
 
-                if (floatVal != $(field).val() || floatVal < 0 || floatVal > criteriaMaxPoints) {
+                if (floatVal < 0 || floatVal > criteriaMaxPoints) {
 
                     validationerrors++;
 
                     $(field).addClass("rating_error");
-                    $("#validationmsg").html("You must enter a number for each student's score between 0 and " + criteriaMaxPoints + ", without decimal places.");
+                    $("#validationmsg").html("You must enter a number for each student's score between 0 and " + criteriaMaxPoints + ".");
 
                     $('#average-' + studentId).html("N/A");
                     average = false;
 
                 } else {
+
+                    $(field).val(floatVal);
 
                     rowTotal += floatVal;
                     $(field).css("background-color", "FFFFFF");
@@ -1012,7 +981,7 @@ function validate() {
             });
 
             if (average) {
-                average = parseFloat((rowTotal / (questions.length - 1)).toFixed(2));
+                average = parseFloat((rowTotal / (questions.length - 1))).toFixed(2);
                 $('#average-' + studentId).html(average);
             }
 
@@ -1196,9 +1165,9 @@ function studentsubmit() {
         //console.log(elementid + " " + elementvalue);
 
 
-
-
-
+        if (elementid.indexOf("Comment") == -1 && elementvalue.indexOf('.') > -1) {
+            elementvalue = parseFloat(elementvalue).toFixed(2);
+        }
 
         csvstring = csvstring + elementid + "^" + clean(elementvalue) + "$";
 
