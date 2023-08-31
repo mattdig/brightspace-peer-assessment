@@ -23,6 +23,9 @@ var whoamiresponse;
 var groupsize;
 var userid;
 
+var topicId;
+var currentScript = document.currentScript;
+
 let deadline = null;
 
 if(typeof(criteriaMaxPoints) == 'undefined'){
@@ -314,9 +317,10 @@ getAssignment(assignment).then(assignmentObject => {
                 /////////////////////////////////////////////////////////////////////////////
 
 
+                let currentPath = window.location.href.pathname;
 
+                topicId = currentPath.match(/viewContent\/(\d+)/)[1];
 
-                //console.log("Staff Role");
 
 
                 //get the groups
@@ -327,9 +331,6 @@ getAssignment(assignment).then(assignmentObject => {
                 //check for duplicate enrolments
 
                 all_enrollments = new Array();
-
-
-
 
                 $.ajax({
                     method: "GET",
@@ -375,6 +376,18 @@ getAssignment(assignment).then(assignmentObject => {
 
                                 $("#peeroutput").append('<p class="header-three">Last day for students to submit their responses: ' + deadlineString + '</p>');
 
+                                $("#peeroutput").append('<p class="header-four">Ratings are all out of ' + criteriaMaxPoints + '.</p>');
+
+                                $('#peeroutput').append('<p><button id="editassignment">Edit Assignment</button></p>');
+
+                                $('#editassignment').click(function () {
+                                    let url = new URL(currentScript.src);
+                                    path = url.pathname.split('/');
+                                    path.pop();
+                                    path = path.join('/') + '/PeerSetup.htm?' + OrgUnitId + '&edit';
+
+                                    window.location.href = path;
+                                });
 
                                 $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th>Org Defined ID</th><th>Peer Assessment submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
 
@@ -1073,6 +1086,7 @@ function validate() {
 
 
 function enabledownload() {
+
     $('#outputtable').DataTable({
         "paging": false,
         "searching": false,
@@ -1111,28 +1125,7 @@ function enabledownload() {
         ]
     });
 
-
-
-
-
-
-
-    //also enable upload
-
 }
-
-
-
-
-
-
-function ExportToGradeBook() {
-
-
-
-}
-
-
 
 
 function studentsubmit() {

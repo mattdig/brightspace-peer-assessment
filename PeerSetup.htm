@@ -33,6 +33,10 @@
 		// the roles for students, by name, specific to your instance of Brightspace
 		var studentroles = ["Learner", "Demo-Learner", "Guest"];
 
+		var MODE = 'create';
+
+		var TOPIC_ID;
+
 	</script>
 
 
@@ -118,13 +122,14 @@
 
 
 						urlsplit_a = location.href.split("?");
-						console.log(urlsplit_a);
-
 						urlsplit_b = urlsplit_a[1].split("&");
 
-						console.log(urlsplit_b);
 						var OrgUnitId = urlsplit_b[0];
 						var OrgUnitPath = '';
+						var OrgUnitCode = urlsplit_b[1];
+						if(OrgUnitCode == 'edit'){
+							MODE = 'edit';
+						}
 
 						//for testing within a module content
 						//OrgUnitId={OrgUnitId}
@@ -152,40 +157,44 @@
 						var groupsize;
 
 						$(function () {
+							init();
+						});
 
-							$.ajax({
+						async function init(){
+
+							let courseresponse = await $.ajax({
 								method: "GET",
 								url: '/d2l/api/lp/1.22/courses/' + OrgUnitId,
-								dataType: 'json',
-								success: function (courseresponse) {
+								dataType: 'json'
+							});
 
-									OrgUnitPath = courseresponse.Path;
-									
-									$.ajax({
+							OrgUnitPath = courseresponse.Path;
+							
+							
+							let roleresponse = await $.ajax({
+								method: "GET",
+								url: roleurl,
+								dataType: 'json'
+							});
+
+							RoleName = roleresponse.Access.ClasslistRoleName;
+							if (RoleName == "Student") {
+								$("#outputdiv").html("<p>This page is not available to your current role in this module</p>");
+							} else {
+
+								if(MODE == 'edit'){
+									let topPath = window.top.location.href.pathName;
+									TOPIC_ID = topPath.match(/\/viewContent\/(\d+)/)[1];
+									// get the topic's file
+									FILE = await $.ajax({
 										method: "GET",
-										url: roleurl,
-										dataType: 'json',
-										error: function (roleresponse) {
-											$("#outputdiv").html("<p>Unable to open module classlist.</p>");
-											//console.log(roleresponse);
-											//console.log(roleurl);
-										},
-										success: function (roleresponse) {
-											RoleName = roleresponse.Access.ClasslistRoleName;
-											if (RoleName == "Student") {
-												$("#outputdiv").html("<p>This page is not available to your current role in this module</p>");
-											} else {
-												gettoken();
-											}//end else gettoken
-										},
-										error: function (roleresponse) {
-											$("#outputdiv").html("<p>Unable to access data from Brightspace. This can happen when you log in using an address that ends in brightspace.com rather than the official version.</p>");
-										}
+										url: '/d2l/api/le/1.61/' + OrgUnitId + '/content/topics/' + TOPIC_ID + '/file?stream=true'
 									});
 								}
-							});
-						
-						});
+
+								gettoken();
+							}
+						}
 
 
 
@@ -233,7 +242,11 @@
 
 							$("#outputdiv").append("<div id=\"groupwrapper\" class=\"validationwrapper\"><h3>Group Category</h3><div id=\"groupsection\"></div></div>");
 
-							getgroups();
+							if(MODE == 'create'){
+								getgroups();
+							} else {
+								$("#groupsection").html("<p>" + "</p>");
+							}
 
 							$("#outputdiv").append("<div id=\"questionswrapper\" class=\"validationwrapper\"><h3>Assessment Criteria</h3><div id=\"questionfields\"></div></div<");
 
