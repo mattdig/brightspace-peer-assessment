@@ -34,7 +34,7 @@ getAssignment(assignment).then(assignmentObject => {
 
     let deadlineString = "No end date set";
     
-    if(assignmentObject.Availability.EndDate !== null){
+    if(assignmentObject.Availability !== null && assignmentObject.Availability.EndDate !== null){
         deadline = new Date(assignmentObject.Availability.EndDate);
         deadlineString = deadline.getMonthName() + ' ' + deadline.getDate() + ', ' + deadline.getFullYear() + ' at ' + (deadline.getHours() > 12 ? deadline.getHours() - 12 : deadline.getHours()) + ':' + (deadline.getMinutes() < 10 ? '0' : '') + deadline.getMinutes() + ' ' + (deadline.getHours() > 12 ? 'PM' : 'AM');
     }
