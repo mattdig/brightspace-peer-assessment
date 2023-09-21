@@ -35,7 +35,12 @@
 
 		var MODE = 'create';
 
-		var TOPIC_ID;
+		var TOPIC = false;
+		var ASSIGNMENT = false;
+		var GRADE_ITEM = false;
+		var GROUP_CATEGORY = false;
+
+		var FILE_VARS = {};
 
 	</script>
 
@@ -183,13 +188,59 @@
 							} else {
 
 								if(MODE == 'edit'){
-									let topPath = window.top.location.href.pathName;
-									TOPIC_ID = topPath.match(/\/viewContent\/(\d+)/)[1];
+									let topPath = window.top.location.href;
+									let topicId = topPath.match(/\/viewContent\/(\d+)/)[1];
+
+									TOPIC = $.ajax({
+										method: "GET",
+										url: '/d2l/api/le/1.70/' + OrgUnitId + '/content/topics/' + topicId
+									});
+
 									// get the topic's file
 									FILE = await $.ajax({
 										method: "GET",
-										url: '/d2l/api/le/1.61/' + OrgUnitId + '/content/topics/' + TOPIC_ID + '/file?stream=true'
+										url: '/d2l/api/le/1.70/' + OrgUnitId + '/content/topics/' + topicId + '/file?stream=true'
 									});
+
+									// get the file's variables
+									FILE_VARS.groupCategoryId = FILE.match(/var\s+groupcategory\s*=\s*(\d+);/)[1];
+									GROUP_CATEGORY = $.ajax({
+										method: "GET",
+										url: '/d2l/api/lp/1.44/' + OrgUnitId + '/groupcategories/' + FILE_VARS.groupCategoryId
+									});
+
+									FILE_VARS.assignmentId = FILE.match(/var\s+assignment\s*=\s*(\d+);/)[1];
+
+									ASSIGNMENT = $.ajax({
+										method: "GET",
+										url: '/d2l/api/le/1.70/' + OrgUnitId + '/dropbox/folders/' + FILE_VARS.assignmentId
+									});
+
+									FILE_VARS.selfassess = FILE.match(/var\s+selfassess\s*=\s*(true|false);/)[1];
+									FILE_VARS.commentfields = FILE.match(/var\s+commentfields\s*=\s*(true|false);/)[1];
+									FILE_VARS.instructions = FILE.match(/var\s+instructions\s*=\s*"(.*)";/)[1];
+									
+									FILE_VARS.questions = [];
+									for(const match of FILE.matchAll(/questions\[\d+\]\s*=\s*"(.*)";/g)){
+										FILE_VARS.questions.push(match[1]);
+									}
+
+									FILE_VARS.gradeItemId = FILE.match(/var\s+GradeItemId\s*=\s*(\d+);/)[1];
+									GRADE_ITEM = $.ajax({
+										method: "GET",
+										url: '/d2l/api/le/1.70/' + OrgUnitId + '/grades/' + FILE_VARS.gradeItemId
+									});
+
+									const promises = await Promise.all([TOPIC, GROUP_CATEGORY, ASSIGNMENT, GRADE_ITEM]);
+
+									TOPIC = promises[0];
+									GROUP_CATEGORY = promises[1];
+									ASSIGNMENT = promises[2];
+									GRADE_ITEM = promises[3];
+
+
+									FILE_VARS.criteriaMaxPoints = FILE.match(/var\s+criteriaMaxPoints\s*=\s*(\d+);/)[1];
+
 								}
 
 								gettoken();
@@ -221,15 +272,45 @@
 
 							$("#outputdiv").append("<div class=\"well\"><p>To view responses on peer assessments which have already been set up, you need to use the link in the Content area. By default, this would have been created in the " + defaultmodule + " area if present.</p>");
 
-							$("#outputdiv").append("<div id=\"activitynamewrapper\" class=\"validationwrapper\"><label for=\"activityname\"><h2>Activity Name</h2><p>eg Peer Assessment</label><br /><input type=\"text\" size=\"80\" value=\"\" id=\"activityname\" /></p></div>");
-							$("#outputdiv").append("<div id=\"enddatewrapper\" class=\"validationwrapper\"><label for=\"enddate\"><h3>End Date</h3></label><p>Last date for submitting peer feedback<br /><input type=\"text\"  value=\"\" id=\"enddate\" />&nbsp;<input type=\"hidden\" id=\"hiddendate\" aria-label=\"\" /><select id=\"endtime\" aria-label=\"End time\"><option value=\"16:00\">16:00</option><option value=\"00:30\">00:30</option><option value=\"01:00\">01:00</option><option value=\"01:30\">01:30</option><option value=\"02:00\">02:00</option><option value=\"02:30\">02:30</option><option value=\"03:00\">03:00</option><option value=\"03:30\">03:30</option><option value=\"04:00\">04:00</option><option value=\"04:30\">04:30</option><option value=\"05:00\">05:00</option><option value=\"05:30\">05:30</option><option value=\"06:00\">06:00</option><option value=\"06:30\">06:30</option><option value=\"07:00\">07:00</option><option value=\"07:30\">07:30</option><option value=\"08:00\">08:00</option><option value=\"08:30\">08:30</option><option value=\"09:00\">09:00</option><option value=\"09:30\">09:30</option><option value=\"10:00\">10:00</option><option value=\"10:30\">10:30</option><option value=\"11:00\">11:00</option><option value=\"11:30\">11:30</option><option value=\"12:00\">12:00</option><option value=\"12:30\">12:30</option><option value=\"13:00\">13:00</option><option value=\"13:30\">13:30</option><option value=\"14:00\">14:00</option><option value=\"14:30\">14:30</option><option value=\"15:00\">15:00</option><option value=\"15:30\">15:30</option><option value=\"16:00\">16:00</option><option value=\"16:30\">16:30</option><option value=\"17:00\">17:00</option><option value=\"17:30\">17:30</option><option value=\"18:00\">18:00</option><option value=\"18:30\">18:30</option><option value=\"19:00\">19:00</option><option value=\"19:30\">19:30</option><option value=\"20:00\">20:00</option><option value=\"20:30\">20:30</option><option value=\"21:00\">21:00</option><option value=\"21:30\">21:30</option><option value=\"22:00\">22:00</option><option value=\"22:30\">22:30</option><option value=\"23:00\">23:00</option><option value=\"23:30\">23:30</option><option value=\"23:59\">23:59</option></select></p></div>");
+							$("#outputdiv").append("<div id=\"activitynamewrapper\" class=\"validationwrapper\"><label for=\"activityname\"><h2>Activity Name</h2><p>eg Peer Assessment</label><br /><input type=\"text\" size=\"80\" value=\"" + (TOPIC != false ? TOPIC.Title : '') + "\" id=\"activityname\" /></p></div>");
 
+							let endDate = false;
+							let endTime = false;
 
-							if (typeof jQuery.ui !== 'undefined') {
-								console.log("loaded");
-							} else {
-								console.log("not loaded");
+							if(ASSIGNMENT && ASSIGNMENT.Availability != null && ASSIGNMENT.Availability.EndDate != null){
+								//convert UTC to local date dd/mm/yyyy
+								let endDateObj = new Date(ASSIGNMENT.Availability.EndDate);
+								endDate = leadingzero(endDateObj.getDate()) + '/' + leadingzero(endDateObj.getMonth() + 1) + '/' + endDateObj.getFullYear();
+
+								//convert UTC to local time hh:mm & round to nearest 30 mins
+								let minutes = Math.round(endDateObj.getMinutes() / 30) * 30;
+								let hours = endDateObj.getHours();
+
+								if(minutes == 60){
+									if(hours == 23){
+										minutes = 59;
+									} else {
+										minutes = 0;
+										hours++;
+									}
+								}
+								endTime = leadingzero(hours) + ':' + leadingzero(minutes);
 							}
+
+							$("#outputdiv").append("<div id=\"enddatewrapper\" class=\"validationwrapper\"><label for=\"enddate\"><h3>End Date</h3></label><p>Last date for submitting peer feedback<br /><input type=\"text\"  value=\"" + (endDate != false ? endDate : '') + "\" id=\"enddate\" />&nbsp;<input type=\"hidden\" id=\"hiddendate\" aria-label=\"\" /><select id=\"endtime\" aria-label=\"End time\"></select></p></div>");
+
+							//options from 00:00 to 23:30 in 30 minute intervals
+							for(let i = 0; i < 48; i++){
+								let minutes = i * 30;
+								let hours = Math.floor(minutes / 60);
+								minutes = minutes % 60;
+								let time = leadingzero(hours) + ':' + leadingzero(minutes);
+								$("#endtime").append('<option value="' + time + '"' + (time == endTime || !endTime && time == '16:00' ? ' selected' : '') + '>' + time + '</option>');
+							}
+
+							// last option
+							let time = '23:59';
+							$("#endtime").append('<option value="' + time + '"' + (time == endTime ? ' selected' : '') + '>' + time + '</option>');
 
 							$("#enddate").datepicker({
 								constrainInput: true,
@@ -245,16 +326,16 @@
 							if(MODE == 'create'){
 								getgroups();
 							} else {
-								$("#groupsection").html("<p>" + "</p>");
+								$("#groupsection").html("<p>" + GROUP_CATEGORY.Name + "</p>");
 							}
 
 							$("#outputdiv").append("<div id=\"questionswrapper\" class=\"validationwrapper\"><h3>Assessment Criteria</h3><div id=\"questionfields\"></div></div<");
 
 							questions();
 
-							$("#outputdiv").append("<div id=\"criteriamaxpointswrapper\" class=\"validationwrapper\"><label for=\"criteriamaxpoints\"><h3>Maximum Points per Criterium</h3><p><input type=\"text\" value=\"100\" id=\"criteriamaxpoints\" /></p></label></div>");
+							$("#outputdiv").append("<div id=\"criteriamaxpointswrapper\" class=\"validationwrapper\"><label for=\"criteriamaxpoints\"><h3>Maximum Points per Criterium</h3><p><input type=\"text\" value=\"" + (FILE_VARS ? FILE_VARS.criteriaMaxPoints : '100') + "\" id=\"criteriamaxpoints\" /></p></label></div>");
 
-							$("#outputdiv").append("<div id=\"gradeitemmaxpointswrapper\" class=\"validationwrapper\"><label for=\"gradeitemmaxpoints\"><h3>Maximum Points for Associated Grade Item</h3><p><input type=\"text\" value=\"100\" id=\"gradeitemmaxpoints\" /></p></label></div>");
+							$("#outputdiv").append("<div id=\"gradeitemmaxpointswrapper\" class=\"validationwrapper\"><label for=\"gradeitemmaxpoints\"><h3>Maximum Points for Associated Grade Item</h3><p><input type=\"text\" value=\"" + (GRADE_ITEM ? GRADE_ITEM.MaxPoints : '100') + "\" id=\"gradeitemmaxpoints\" /></p></label></div>");
 
 							$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Assessment</h3><p><input type=\"checkbox\" id=\"selfassess\" /> Students should assess their own contribution as well as other group members</p></label></div>");
 
@@ -289,7 +370,7 @@
 
 										for (g = 0; g < groupresponse.length; g++) {
 
-											$("#grouptable").append("<tr><td><input type=\"radio\" name=\"GroupCategoryId\" value=\"" + groupresponse[g].GroupCategoryId + "\" id=\"radio-" + groupresponse[g].GroupCategoryId + "\"onchange=\"enablesubmit()\"></input></td><td><label for=\"radio-" + groupresponse[g].GroupCategoryId + "\">" + groupresponse[g].Name + "</label></td></tr>");
+											$("#grouptable").append("<tr><td><input type=\"radio\" name=\"GroupCategoryId\" value=\"" + groupresponse[g].GroupCategoryId + "\" id=\"radio-" + groupresponse[g].GroupCategoryId + "\"onchange=\"enablesubmit()\"" + (FILE_VARS.GroupCategoryId == groupresponse[g].GroupCategoryId ? ' checked' : '') + "></input></td><td><label for=\"radio-" + groupresponse[g].GroupCategoryId + "\">" + groupresponse[g].Name + "</label></td></tr>");
 
 										} //end for
 
@@ -318,12 +399,7 @@
 						function questions() {
 
 
-
-							console.log("questions");
-
 							GroupCategoryId = $("input[name='GroupCategoryId']:checked").val();
-
-							console.log(GroupCategoryId);
 
 
 							//now create the questions list
@@ -332,18 +408,25 @@
 
 							$("#questionfields").append("<p>Enter the criteria you want students to assess each other on. Ideally, please keep these brief.</p>");
 
-							$("#questionfields").append("<p><input type=\"text\" value=\"\" class=\"questioninput\"  size=\"80\"\"/ aria-label=\"Assessment criteria text\"></p><div id=\"extraquestions\"></div>");
+							$("#questionfields").append("<div id=\"questions\"></div>");
 
 							$("#questionfields").append("<p><input type=\"button\" onclick=\"addfield()\" value=\"Add another criterion\" /></p>");
 
+							if(FILE_VARS.questions){
+								for (q = 0; q < FILE_VARS.questions.length; q++) {
+									addfield(FILE_VARS.questions[q]);
+								}
+							} else {
+								addfield();
+							}
 
 							$("#questionbutton").hide();
 						}
 
 
-						function addfield() {
+						function addfield(value = false) {
 
-							$("#extraquestions").append("<p><input type=\"text\" value=\"\" size=\"80\" class=\"questioninput\" \"/></p>");
+							$("#questions").append("<p><input type=\"text\" size=\"80\" class=\"questioninput\" " + (value != false ? ' value="' + value + '" ' : '') + "/></p>");
 
 						}
 
@@ -475,14 +558,12 @@
 
 
 						function clean(input) {
-							console.log(input);
+							
 							output = nl2br(input, true);
 
 							output = output.replace(/"/g, '\\"');
 							output = output.replace(/'/g, "\\'");
 							output = output.replace(/\//g, "-");
-							console.log(output);
-
 
 							//console.log(output);
 
@@ -505,7 +586,7 @@
 								url: "/d2l/api/le/1.37/" + OrgUnitId + "/content/root/",
 								dataType: 'json',
 								success: function (rootmods) {
-									console.log(rootmods);
+									
 									//loop through them. Do we have one that contains the default's name?
 
 									//set a default of the first module
@@ -513,7 +594,7 @@
 									targetmodulename = rootmods[0].Title;
 
 									for (r = 0; r < rootmods.length; r++) {
-										console.log(rootmods[r].Title);
+										//console.log(rootmods[r].Title);
 
 										lctitle = rootmods[r].Title.toLowerCase();
 

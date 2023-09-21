@@ -317,7 +317,7 @@ getAssignment(assignment).then(assignmentObject => {
                 /////////////////////////////////////////////////////////////////////////////
 
 
-                let currentPath = window.location.href.pathname;
+                let currentPath = window.top.location.href;
 
                 topicId = currentPath.match(/viewContent\/(\d+)/)[1];
 
