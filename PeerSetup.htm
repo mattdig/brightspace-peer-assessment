@@ -241,6 +241,8 @@
 
 									FILE_VARS.criteriaMaxPoints = FILE.match(/var\s+criteriaMaxPoints\s*=\s*(\d+);/)[1];
 
+									console.log(FILE_VARS, GRADE_ITEM);
+
 								}
 
 								gettoken();
@@ -337,13 +339,13 @@
 
 							$("#outputdiv").append("<div id=\"gradeitemmaxpointswrapper\" class=\"validationwrapper\"><label for=\"gradeitemmaxpoints\"><h3>Maximum Points for Associated Grade Item</h3><p><input type=\"text\" value=\"" + (GRADE_ITEM ? GRADE_ITEM.MaxPoints : '100') + "\" id=\"gradeitemmaxpoints\" /></p></label></div>");
 
-							$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Assessment</h3><p><input type=\"checkbox\" id=\"selfassess\" /> Students should assess their own contribution as well as other group members</p></label></div>");
+							$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Assessment</h3><p><input type=\"checkbox\" id=\"selfassess\"" + (FILE_VARS && FILE_VARS.selfassess == 'true' ? ' checked' : '') + " /> Students should assess their own contribution as well as other group members</p></label></div>");
 
-							$("#outputdiv").append("<div id=\"commentswrapper\" class=\"validationwrapper\"><label for=\"commentfields\"><h3>Student comments</h3><p><input type=\"checkbox\" id=\"commentfields\" /> Provide a space for students to explain their marks. You can choose to publish these as feedback, in anonymous form, when you review the feedback.</p></div>");
+							$("#outputdiv").append("<div id=\"commentswrapper\" class=\"validationwrapper\"><label for=\"commentfields\"><h3>Student comments</h3><p><input type=\"checkbox\" id=\"commentfields\"" + (FILE_VARS && FILE_VARS.commentfields == 'true' ? ' checked' : '') + " /> Provide a space for students to explain their marks. You can choose to publish these as feedback, in anonymous form, when you review the feedback.</p></div>");
 
-							$("#outputdiv").append("<div id=\"instructionswrapper\" class=\"validationwrapper\"><label for=\"instructions\"><h3>Instructions to students </h3></label><p><textarea cols=\"80\" rows=\"6\" id=\"instructions\" >" + defaultinstructions + "</textarea></div>");
+							$("#outputdiv").append("<div id=\"instructionswrapper\" class=\"validationwrapper\"><label for=\"instructions\"><h3>Instructions to students </h3></label><p><textarea cols=\"80\" rows=\"6\" id=\"instructions\" >" + (FILE_VARS ? br2nl(FILE_VARS.instructions) : defaultinstructions) + "</textarea></div>");
 
-							$("#outputdiv").append("<p id=\"buttonwrapper\"><input type=\"button\" class=\"btn-primary\" id=\"submitbutton\" onclick=\"validate()\" value=\"Set up the Peer Assessment\"/></p><p id=\"statusmsg\"></p>");
+							$("#outputdiv").append("<p id=\"buttonwrapper\"><input type=\"button\" class=\"btn-primary\" id=\"submitbutton\" onclick=\"validate()\" value=\"" + (FILE_VARS ? 'Save Peer Assessment' : 'Set up the Peer Assessment') + "\"/></p><p id=\"statusmsg\"></p>");
 							$("#outputdiv").append("<p>&nbsp;</p>");
 
 						}
@@ -555,15 +557,18 @@
 						}
 
 
+						function br2nl(str) {
+							return str.replace(/<br\s*.?>/mg, "\n");
+						}
 
 
 						function clean(input) {
 							
-							output = nl2br(input, true);
+							output = nl2br(input, false);
 
 							output = output.replace(/"/g, '\\"');
-							output = output.replace(/'/g, "\\'");
-							output = output.replace(/\//g, "-");
+							//output = output.replace(/'/g, "\\'");
+							//output = output.replace(/\//g, "-");
 
 							//console.log(output);
 
