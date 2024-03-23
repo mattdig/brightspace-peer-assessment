@@ -594,25 +594,18 @@ getAssignment(assignment).then(assignmentObject => {
                                                             }
 
 
+                                                            //Note: tmpsplit[0] is the question ID or "Comment"
+
                                                             //update the score row
+                                                            let responseField = $("#response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-" + tmpsplit[0]);
 
-                                                            if (tmpsplit[0] == "Comment") {
-
-                                                                $("#response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-" + tmpsplit[0]).html(ratingdetail[1]);
-                                                            } else {
-                                                                $("#response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-" + tmpsplit[0]).html(ratingdetail[1]);
-
-
+                                                            if(responseField.length != 0){
+                                                                responseField.html(ratingdetail[1]);
+                                                                //resize the textarea
+                                                                responseField.height(responseField[0].scrollHeight);
                                                             }
 
-                                                            //resize the textarea
-                                                            $("#response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-" + tmpsplit[0]).height($("#response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-" + tmpsplit[0])[0].scrollHeight);
-
-
-
                                                             //$("#votestablebody").append(baseresponse+"<td>"+getstudentname(tmpsplit[1])+"</td><td>"+tmpsplit[0]+"</td><td>"+ratingdetail[1]+"</td>");
-
-
 
 
 
