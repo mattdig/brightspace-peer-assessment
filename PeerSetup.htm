@@ -97,6 +97,11 @@
 
 					<script>
 
+						let version = {
+							'le': 1.74,
+							'lp': 1.46
+						}
+
 						//set up filename for main script
 
 						var scriptfilename = "peerreview-100-include__v1.5.js";
@@ -152,7 +157,7 @@
 
 						//get user role via API as we can't use replace strings here
 
-						roleurl = "/d2l/api/lp/1.22/enrollments/myenrollments/" + OrgUnitId + "/access";
+						roleurl = "/d2l/api/lp/" + version.lp + "/enrollments/myenrollments/" + OrgUnitId + "/access";
 
 						var mygroup;
 						var classlistresponse;
@@ -168,7 +173,7 @@
 
 							let courseresponse = await $.ajax({
 								method: "GET",
-								url: '/d2l/api/lp/1.22/courses/' + OrgUnitId,
+								url: '/d2l/api/lp/' + version.lp + '/courses/' + OrgUnitId,
 								dataType: 'json'
 							});
 
@@ -192,27 +197,27 @@
 
 									TOPIC = $.ajax({
 										method: "GET",
-										url: '/d2l/api/le/1.70/' + OrgUnitId + '/content/topics/' + topicId
+										url: '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/content/topics/' + topicId
 									});
 
 									// get the topic's file
 									FILE = await $.ajax({
 										method: "GET",
-										url: '/d2l/api/le/1.70/' + OrgUnitId + '/content/topics/' + topicId + '/file?stream=true'
+										url: '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/content/topics/' + topicId + '/file?stream=true'
 									});
 
 									// get the file's variables
 									FILE_VARS.groupCategoryId = FILE.match(/var\s+groupcategory\s*=\s*(\d+);/)[1];
 									GROUP_CATEGORY = $.ajax({
 										method: "GET",
-										url: '/d2l/api/lp/1.44/' + OrgUnitId + '/groupcategories/' + FILE_VARS.groupCategoryId
+										url: '/d2l/api/lp/' + version.lp + '/' + OrgUnitId + '/groupcategories/' + FILE_VARS.groupCategoryId
 									});
 
 									FILE_VARS.assignmentId = FILE.match(/var\s+assignment\s*=\s*(\d+);/)[1];
 
 									ASSIGNMENT = $.ajax({
 										method: "GET",
-										url: '/d2l/api/le/1.70/' + OrgUnitId + '/dropbox/folders/' + FILE_VARS.assignmentId
+										url: '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/dropbox/folders/' + FILE_VARS.assignmentId
 									});
 
 									FILE_VARS.selfassess = FILE.match(/var\s+selfassess\s*=\s*(true|false);/)[1];
@@ -347,7 +352,7 @@
 
 						function getgroups() {
 
-							groupurl = "/d2l/api/lp/1.22/" + OrgUnitId + "/groupcategories/"
+							groupurl = "/d2l/api/lp/" + version.lp + "/" + OrgUnitId + "/groupcategories/"
 
 							$.ajax({
 								method: "GET",
@@ -425,7 +430,7 @@
 
 
 
-						function validate() {
+						async function validate() {
 
 							//hide the button to prevent multi-click
 
@@ -523,6 +528,7 @@
 							if (validationerrors == 0) {
 
 								validationok();
+
 							} else {
 
 
@@ -571,45 +577,45 @@
 
 
 
-						function validationok() {
-
+						async function validationok() {
 
 							//let's work out which module (aka unit) we're going to create the post in
 
 							//get the root modules list
 
-							$.ajax({
+							let rootmods = await $.ajax({
 								method: "GET",
-								url: "/d2l/api/le/1.37/" + OrgUnitId + "/content/root/",
+								url: "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/root/",
 								dataType: 'json',
-								success: function (rootmods) {
-									
-									//loop through them. Do we have one that contains the default's name?
-
-									//set a default of the first module
-									targetmodule = rootmods[0].Id;
-									targetmodulename = rootmods[0].Title;
-
-									for (r = 0; r < rootmods.length; r++) {
-										//console.log(rootmods[r].Title);
-
-										lctitle = rootmods[r].Title.toLowerCase();
-
-										if (lctitle.indexOf(defaultmodule.toLowerCase()) != -1) {
-											targetmodule = rootmods[r].Id;
-											targetmodulename = rootmods[r].Title;
-
-										}
-
-									}
-
-									console.log(targetmodule);
-									console.log(targetmodulename);
-
-									createassignment();
-
-								}//end success
 							})//end ajax
+
+							//loop through them. Do we have one that contains the default's name?
+
+							//set a default of the first module
+							targetmodule = rootmods[0].Id;
+							targetmodulename = rootmods[0].Title;
+
+							for (r = 0; r < rootmods.length; r++) {
+								//console.log(rootmods[r].Title);
+
+								lctitle = rootmods[r].Title.toLowerCase();
+
+								if (lctitle.indexOf(defaultmodule.toLowerCase()) != -1) {
+									targetmodule = rootmods[r].Id;
+									targetmodulename = rootmods[r].Title;
+
+								}
+
+							}
+
+							// console.log(targetmodule);
+							// console.log(targetmodulename);
+
+							await createassignment();
+
+							await creategradeitem();
+
+							await createpost();
 
 						}//end validationok
 
@@ -635,8 +641,7 @@
 
 
 
-						function createassignment() {
-
+						async function createassignment() {
 
 							datestr = $("#hiddendate").val();
 
@@ -653,79 +658,68 @@
 
 							enddate = tempdate.getUTCFullYear() + "-" + leadingzero(tempdate.getUTCMonth() + 1) + "-" + leadingzero(tempdate.getUTCDate()) + "T" + leadingzero(tempdate.getUTCHours()) + ":" + leadingzero(tempdate.getUTCMinutes()) + ":00.000Z"
 
-
-
-
 							assignjson = '{"CategoryId": null,"Name": "' + nameprefix + clean($("#activityname").val()) + ' (Peer Assessment)","Assessment": null,"CustomInstructions": {"Content": "Please do not submit anything to this Assignment!","Type": "Text"},"Availability": {  "StartDate": null,"EndDate": "' + enddate + '"},"GroupTypeId": null,"DueDate": null,"DisplayInCalendar": false,"NotificationEmail": null,"IsHidden": false}';
 
-							console.log("assignjson:" + assignjson);
-
-
-							assignurl = "/d2l/api/le/1.37/" + OrgUnitId + "/dropbox/folders/";
-							$.ajax({
+							assignurl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/dropbox/folders/";
+							
+							let assignreturn = await $.ajax({
 								type: "POST",
 								beforeSend: function (request) {
 									request.setRequestHeader("X-Csrf-Token", token.referrerToken);
 								},
 								url: assignurl,
-								data: assignjson,
-								success: function (assignreturn) {
-									console.log(assignreturn);
-									AssignmentId = assignreturn.Id;
-
-									creategradeitem();
-
-								}//end success
+								data: assignjson
 							}) //end ajax                    
 
+							AssignmentId = assignreturn.Id;
 
+							return assignreturn;
 
 						}//end function createassignment
 
 
 
 
-						function creategradeitem() {
-							gradeposturl = "/d2l/api/le/1.37/" + OrgUnitId + "/grades/";
+						async function creategradeitem() {
+						
+							gradeposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/grades/";
 
 							let gradeItemMaxPoints = parseInt($("#gradeitemmaxpoints").val());
 
 							gradejson = '{"MaxPoints": ' + gradeItemMaxPoints + ', "CanExceedMaxPoints": false, "IsBonus": false, "ExcludeFromFinalGradeCalculation": true, "GradeSchemeId": null, "Name": "' + nameprefix + clean($("#activityname").val()) + 
 								' (Peer Review)", "ShortName": "", "GradeType": "Numeric", "CategoryId": null, "Description":{"Content": "Peer Review Grade","Type": "Text/Html"}, "IsHidden": true}';
 
-							$.ajax({
+							let gradertn = await $.ajax({
 								type: "POST",
 								beforeSend: function (request) {
 									request.setRequestHeader("X-Csrf-Token", token.referrerToken);
 								},
 								url: gradeposturl,
-								data: gradejson,
-								success: function (gradertn) {
-									GradeItemId = gradertn.Id;
-									createpost();
-
-								}
+								data: gradejson
 							});
 
-
-
-
-
+							GradeItemId = gradertn.Id;
+							
+							return gradertn;
+							
 						}
 
 
 
 
 
-						function createpost() {
+						async function createpost() {
 
-							assignment = AssignmentId;
+							let assignment = AssignmentId;
 
-							console.log(assignment);
+							//console.log(assignment);
 
-							contentposturl = "/d2l/api/le/1.25/" + OrgUnitId + "/content/modules/" + targetmodule + "/structure/?renameFileIfExists=true";
+							let createposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/modules/" + targetmodule + "/structure/?renameFileIfExists=true";
 
-							configsection = 'var groupcategory = ' + GroupCategoryId + ';\r\nvar assignment = ' + assignment + ';\r\n';
+							let updatepostfile = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/topics/" + TOPIC.Id + "/file";
+
+							
+							let configsection = 'var groupcategory = ' + GroupCategoryId + ';\r\nvar assignment = ' + assignment + ';\r\n';
 
 
 							if (document.getElementById('selfassess').checked) {
@@ -791,19 +785,52 @@
 							htmlbody = htmlbody.replace(/}/g, ">");
 
 
+							let formdata;
+							
+							if(MODE == 'create'){
+								formdata = '--xxBOUNDARYxx\r\nContent-Type: application/json\r\n\r\n{"IsHidden": false, "IsLocked": false, "ShortTitle": "' + clean($("#activityname").val()) + '", "Type": 1,"DueDate": null, "Url":"' + OrgUnitPath + 'PeerAssessment.htm", "StartDate": null, "TopicType": 1, "EndDate": "' + enddate + '", "Title": "' + clean($("#activityname").val()) + '"}\r\n--xxBOUNDARYxx\r\nContent-Disposition: form-data; name=""; filename="file.htm"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n--xxBOUNDARYxx--';
+							} else {
+
+								let updateposturl = '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/content/topics/' + TOPIC.Id;
+
+								formdata = {
+										"Title": clean($("#activityname").val()),
+										"ShortTitle": clean($("#activityname").val()),
+										"Type": 1,
+										"TopicType":1,
+										"Url": OrgUnitPath + 'PeerAssessment.htm',
+										"StartDate": null,
+										"EndDate": enddate,
+										"DueDate": null,
+										"IsHidden": false,
+										"IsLocked": false,
+										"OpenAsExternalResource": null,
+										"Description": null,
+										"MajorUpdate": null,
+										"MajorUpdateText": '',
+										"ResetCompletionTracking": null,
+										"Duration": null
+									};
+
+								await $.ajax({
+									type: "PUT",
+									beforeSend: function (request) {
+										request.setRequestHeader("X-Csrf-Token", token.referrerToken);
+									},
+									url: updateposturl,
+									data: formdata
+								});
+
+								formdata = '--xxBOUNDARYxx\r\nContent-Type: text/html\r\nContent-Disposition: form-data; name="file"; filename="file.htm"\r\n\r\n' + htmlbody + '\r\n---xxBOUNDARYxx--'
+							}
 
 
+							//console.log(formdata);
 
-
-							var formdata = '--xxBOUNDARYxx\r\nContent-Type: application/json\r\n\r\n{"IsHidden": false, "IsLocked": false, "ShortTitle": "' + clean($("#activityname").val()) + '", "Type": 1,"DueDate": null, "Url":"' + OrgUnitPath + 'PeerAssessment.htm", "StartDate": null, "TopicType": 1, "EndDate": "' + enddate + '", "Title": "' + clean($("#activityname").val()) + '"}\r\n--xxBOUNDARYxx\r\nContent-Disposition: form-data; name=""; filename="file.htm"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n--xxBOUNDARYxx--';
-
-
-
-							console.log(formdata);
-
+							
 
 							$.ajax({
-								type: "POST",
+								type: (MODE == 'create' ? "POST" : "PUT"),
 								beforeSend: function (request) {
 									request.setRequestHeader("Content-Type", "multipart/mixed; boundary=xxBOUNDARYxx");
 									request.setRequestHeader("X-Csrf-Token", token.referrerToken);
@@ -816,7 +843,6 @@
 								success: function (returndata) {
 									$("#statusmsg").html("");
 									$("#buttonwrapper").html("<p><strong>Your Peer Assessment has been created in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
-
 								}
 							});
 
