@@ -114,22 +114,6 @@
 						assetspath = scripturl + "assets";
 						scripturl = scripturl + scriptfilename;
 
-						console.log(assetspath);
-						console.log(location.href);
-
-
-
-
-
-
-
-						if (typeof jQuery.ui !== 'undefined') {
-							console.log("loaded");
-						} else {
-							console.log("not loaded");
-						}
-
-
 						urlsplit_a = location.href.split("?");
 						urlsplit_b = urlsplit_a[1].split("&");
 
@@ -212,6 +196,9 @@
 										method: "GET",
 										url: '/d2l/api/lp/' + version.lp + '/' + OrgUnitId + '/groupcategories/' + FILE_VARS.groupCategoryId
 									});
+
+									FILE_VARS.gradeItemId = FILE.match(/var\s+GradeItemId\s*=\s*(\d+);/)[1];
+									GradeItemId = FILE_VARS.gradeItemId;
 
 									FILE_VARS.assignmentId = FILE.match(/var\s+assignment\s*=\s*(\d+);/)[1];
 
@@ -323,6 +310,7 @@
 								getgroups();
 							} else {
 								$("#groupsection").html("<p>" + GROUP_CATEGORY.Name + "</p>");
+								$("#groupsection").append("<input type=\"hidden\" id=\"GroupCategoryId\" value=\"" + GROUP_CATEGORY.GroupCategoryId + "\" />");
 							}
 
 							$("#outputdiv").append("<div id=\"questionswrapper\" class=\"validationwrapper\"><h3>Assessment Criteria</h3><div id=\"questionfields\"></div></div>");
@@ -368,7 +356,7 @@
 
 										for (g = 0; g < groupresponse.length; g++) {
 
-											$("#grouptable").append("<tr><td><input type=\"radio\" name=\"GroupCategoryId\" value=\"" + groupresponse[g].GroupCategoryId + "\" id=\"radio-" + groupresponse[g].GroupCategoryId + "\"onchange=\"enablesubmit()\"" + (FILE_VARS.GroupCategoryId == groupresponse[g].GroupCategoryId ? ' checked' : '') + "></input></td><td><label for=\"radio-" + groupresponse[g].GroupCategoryId + "\">" + groupresponse[g].Name + "</label></td></tr>");
+											$("#grouptable").append("<tr><td><input type=\"radio\" id=\"GroupCategoryId\" value=\"" + groupresponse[g].GroupCategoryId + "\" id=\"radio-" + groupresponse[g].GroupCategoryId + "\"onchange=\"enablesubmit()\"" + (FILE_VARS.GroupCategoryId == groupresponse[g].GroupCategoryId ? ' checked' : '') + "></input></td><td><label for=\"radio-" + groupresponse[g].GroupCategoryId + "\">" + groupresponse[g].Name + "</label></td></tr>");
 
 										} //end for
 
@@ -397,7 +385,7 @@
 						function questions() {
 
 
-							GroupCategoryId = $("input[name='GroupCategoryId']:checked").val();
+							GroupCategoryId = $("#GroupCategoryId").val();
 
 
 							//now create the questions list
@@ -470,7 +458,7 @@
 
 							//groups
 
-							GroupCategoryId = $("input[name='GroupCategoryId']:checked").val();
+							GroupCategoryId = $("#GroupCategoryId").val();
 
 							if (isNaN(GroupCategoryId)) {
 								validationerrors++;
@@ -613,9 +601,14 @@
 
 							await createassignment();
 
-							await creategradeitem();
+							if(MODE == 'create'){
+								await creategradeitem();
+							}
 
 							await createpost();
+
+							$("#statusmsg").html("");
+							$("#buttonwrapper").html("<p><strong>Your Peer Assessment has been created in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
 
 						}//end validationok
 
@@ -660,10 +653,10 @@
 
 							assignjson = '{"CategoryId": null,"Name": "' + nameprefix + clean($("#activityname").val()) + ' (Peer Assessment)","Assessment": null,"CustomInstructions": {"Content": "Please do not submit anything to this Assignment!","Type": "Text"},"Availability": {  "StartDate": null,"EndDate": "' + enddate + '"},"GroupTypeId": null,"DueDate": null,"DisplayInCalendar": false,"NotificationEmail": null,"IsHidden": false}';
 
-							assignurl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/dropbox/folders/";
+							assignurl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/dropbox/folders/" + (MODE == 'edit' ? FILE_VARS.assignmentId : '');
 							
 							let assignreturn = await $.ajax({
-								type: "POST",
+								type: (MODE == 'create' ? "POST" : "PUT"),
 								beforeSend: function (request) {
 									request.setRequestHeader("X-Csrf-Token", token.referrerToken);
 								},
@@ -681,6 +674,10 @@
 
 
 						async function creategradeitem() {
+
+							if(MODE == 'edit'){
+								return false;
+							}
 						
 							gradeposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/grades/";
 
@@ -715,9 +712,6 @@
 							//console.log(assignment);
 
 							let createposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/modules/" + targetmodule + "/structure/?renameFileIfExists=true";
-
-							let updatepostfile = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/topics/" + TOPIC.Id + "/file";
-
 							
 							let configsection = 'var groupcategory = ' + GroupCategoryId + ';\r\nvar assignment = ' + assignment + ';\r\n';
 
@@ -742,7 +736,9 @@
 							configsection = configsection + 'var questions = new Array();\r\n';
 							configsection = configsection + 'var GradeItemId = ' + GradeItemId + ';\r\n';
 
-							configsection = configsection + 'var criteriaMaxPoints = ' + parseInt($("#criteriamaxpoints").val()) + ';\r\n';
+							configsection = configsection + 'var criteriaMaxPoints = ' + 
+								(MODE == 'create' ? parseInt($("#criteriamaxpoints").val()) : FILE_VARS.criteriaMaxPoints) + 
+								';\r\n';
 
 							criteriacount = 1;
 							$(".questioninput").each(function (index, value) {
@@ -798,19 +794,21 @@
 										"ShortTitle": clean($("#activityname").val()),
 										"Type": 1,
 										"TopicType":1,
-										"Url": OrgUnitPath + 'PeerAssessment.htm',
+										"Url": TOPIC.Url,
 										"StartDate": null,
 										"EndDate": enddate,
 										"DueDate": null,
-										"IsHidden": false,
-										"IsLocked": false,
-										"OpenAsExternalResource": null,
+										"IsHidden": TOPIC.IsHidden,
+										"IsLocked": TOPIC.IsLocked,
+										"OpenAsExternalResource": false,
 										"Description": null,
 										"MajorUpdate": null,
 										"MajorUpdateText": '',
 										"ResetCompletionTracking": null,
 										"Duration": null
 									};
+
+								formdata = JSON.stringify(formdata);
 
 								await $.ajax({
 									type: "PUT",
@@ -822,6 +820,9 @@
 								});
 
 								formdata = '--xxBOUNDARYxx\r\nContent-Type: text/html\r\nContent-Disposition: form-data; name="file"; filename="file.htm"\r\n\r\n' + htmlbody + '\r\n---xxBOUNDARYxx--'
+								
+								createposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/topics/" + TOPIC.Id + "/file";
+
 							}
 
 
@@ -829,23 +830,17 @@
 
 							
 
-							$.ajax({
+							let createpost = $.ajax({
 								type: (MODE == 'create' ? "POST" : "PUT"),
 								beforeSend: function (request) {
 									request.setRequestHeader("Content-Type", "multipart/mixed; boundary=xxBOUNDARYxx");
 									request.setRequestHeader("X-Csrf-Token", token.referrerToken);
 								},
-								url: contentposturl,
-								data: formdata,
-								complete: function (returndata) {
-									console.log(returndata);
-								},
-								success: function (returndata) {
-									$("#statusmsg").html("");
-									$("#buttonwrapper").html("<p><strong>Your Peer Assessment has been created in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
-								}
+								url: createposturl,
+								data: formdata
 							});
 
+							return createpost;
 
 						}//end function createpost
 
