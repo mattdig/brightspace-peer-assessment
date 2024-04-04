@@ -774,17 +774,44 @@
 
 							configsection = configsection + rolesstring;
 
-							htmlbody = '{!DOCTYPE html}\r\n{html}\r\n{head}\r\n{meta charset="utf-8"}\r\n{meta http-equiv="x-ua-compatible" content="ie=edge"}\r\n{title}' + clean($("#activityname").val()) + '{/title}\r\n{meta name="description" content=""}\r\n{meta name="viewport" content="width=device-width, initial-scale=1.0"}\r\n    {!-- Bootstrap CDN CSS --}\r\n{link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"}\r\n{!-- Font Awesome CDN CSS --}\r\n{link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"}\r\n{!-- Course Styles --}{link rel="stylesheet" href="' + assetspath + '/css/main.min.css"}\r\n{!-- Data Tables CDN CSS --}\r\n{link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/b-html5-1.6.1/datatables.min.css"/}\r\n{script src="https://code.jquery.com/jquery-1.12.4.js"}{/script}\r\n    {script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"}{/script}\r\n    \r\n{!-- jQuery CDN w/ local fallback (Bootstrap Dependency) --}\r\n{script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"}{/script}\r\n{!-- Bootstrap CDN JS --}\r\n{script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"}{/script}\r\n{!-- SVG Fallback JS --}\r\n{script src="' + assetspath + '/thirdpartylib/svg4everybody/svg4everybody.min.js"}{/script}\r\n{!-- Course Scripts --}\r\n{script src="' + assetspath + '/js/main.min.js"}{/script}\r\n{script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/b-html5-1.6.1/sc-2.0.1/datatables.min.js"}{/script}\r\n{script}\r\n' + configsection + '\r\n{/script}\r\n{body  class="content layout-2" role="document"}\r\n{div id="peeroutput"}{/div}{script src="' + scripturl + '"}{/script}\r\n{/body}\r\n{/html}';
-
-
-							htmlbody = htmlbody.replace(/{/g, "<");
-							htmlbody = htmlbody.replace(/}/g, ">");
-
-
+							// { } are used instead of < > just to avoid syntax interpreter issues with VSCODE ¯\_(ツ)_/¯
+							htmlbody = '{!DOCTYPE html}\r\n{html}\r\n{head}\r\n{meta charset="utf-8"}\r\n{meta http-equiv="x-ua-compatible" content="ie=edge"}\r\n{title}' + clean($("#activityname").val()) + '{/title}\r\n{meta name="description" content=""}\r\n{meta name="viewport" content="width=device-width, initial-scale=1.0"}\r\n' + 
+								'{!-- Bootstrap CDN CSS --}\r\n{link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"}\r\n{!-- Font Awesome CDN CSS --}\r\n{link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"}\r\n{!-- Course Styles --}{link rel="stylesheet" href="' + assetspath + '/css/main.min.css"}\r\n' + 
+								'{!-- Data Tables CDN CSS --}\r\n{link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/b-html5-1.6.1/datatables.min.css"}\r\n' + 
+								'{script src="https://code.jquery.com/jquery-1.12.4.js"}{/script}\r\n{script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"}{/script}\r\n\r\n' + 
+								'{!-- jQuery CDN w/ local fallback (Bootstrap Dependency) --}\r\n{script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"}{/script}\r\n' + 
+								'{!-- Bootstrap CDN JS --}\r\n{script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"}{/script}\r\n{!-- SVG Fallback JS --}\r\n{script src="' + assetspath + '/thirdpartylib/svg4everybody/svg4everybody.min.js"}{/script}\r\n' + 
+								'{!-- Course Scripts --}\r\n{script src="' + assetspath + '/js/main.min.js"}{/script}\r\n{script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/b-1.6.1/b-html5-1.6.1/sc-2.0.1/datatables.min.js"}{/script}\r\n{script}\r\n' + configsection + '\r\n{/script}\r\n' + 
+								'{body  class="content layout-2" role="document"}\r\n{div id="peeroutput"}{/div}{script src="' + scripturl + '"}{/script}\r\n{/body}\r\n{/html}';
+							
+							htmlbody = htmlbody.replace(/\{/g, '<');
+							htmlbody = htmlbody.replace(/\}/g, '>');
+							
 							let formdata;
 							
 							if(MODE == 'create'){
-								formdata = '--xxBOUNDARYxx\r\nContent-Type: application/json\r\n\r\n{"IsHidden": false, "IsLocked": false, "ShortTitle": "' + clean($("#activityname").val()) + '", "Type": 1,"DueDate": null, "Url":"' + OrgUnitPath + 'PeerAssessment.htm", "StartDate": null, "TopicType": 1, "EndDate": "' + enddate + '", "Title": "' + clean($("#activityname").val()) + '"}\r\n--xxBOUNDARYxx\r\nContent-Disposition: form-data; name=""; filename="file.htm"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n--xxBOUNDARYxx--';
+
+								formdata = {
+									"Title": clean($("#activityname").val()),
+									"ShortTitle": clean($("#activityname").val()),
+									"Type": 1,
+									"TopicType":1,
+									"Url": OrgUnitPath + 'PeerAssessment.htm',
+									"StartDate": null,
+									"EndDate": enddate,
+									"DueDate": null,
+									"IsHidden": false,
+									"IsLocked": false,
+									"OpenAsExternalResource": false,
+									"Description": null,
+									"MajorUpdate": null,
+									"MajorUpdateText": '',
+									"ResetCompletionTracking": null,
+									"Duration": null
+								}
+
+								formdata = '--xxBOUNDARYxx\r\nContent-Type: application/json\r\n\r\n' + JSON.stringify(formdata) + '\r\n--xxBOUNDARYxx\r\nContent-Disposition: form-data; name=""; filename="file.htm"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n--xxBOUNDARYxx--';
+
 							} else {
 
 								let updateposturl = '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/content/topics/' + TOPIC.Id;
@@ -833,7 +860,7 @@
 							let createpost = $.ajax({
 								type: (MODE == 'create' ? "POST" : "PUT"),
 								beforeSend: function (request) {
-									request.setRequestHeader("Content-Type", "multipart/mixed; boundary=xxBOUNDARYxx");
+									request.setRequestHeader("Content-Type", "multipart/" + (MODE == 'create' ? 'mixed' : 'form-data') + "; boundary=xxBOUNDARYxx");
 									request.setRequestHeader("X-Csrf-Token", token.referrerToken);
 								},
 								url: createposturl,
