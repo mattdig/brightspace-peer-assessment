@@ -39,7 +39,7 @@
 		var ASSIGNMENT = false;
 		var GROUP_CATEGORY = false;
 
-		var FILE_VARS = {};
+		var FILE_VARS = false;
 
 	</script>
 
@@ -176,6 +176,9 @@
 							} else {
 
 								if(MODE == 'edit'){
+
+									FILE_VARS = {};
+
 									let topPath = window.top.location.href;
 									let topicId = topPath.match(/\/viewContent\/(\d+)/)[1];
 
@@ -259,11 +262,13 @@
 
 							let endDate = false;
 							let endTime = false;
+							let isoEndDate;
 
 							if(ASSIGNMENT && ASSIGNMENT.Availability != null && ASSIGNMENT.Availability.EndDate != null){
 								//convert UTC to local date dd/mm/yyyy
 								let endDateObj = new Date(ASSIGNMENT.Availability.EndDate);
 								endDate = leadingzero(endDateObj.getDate()) + '/' + leadingzero(endDateObj.getMonth() + 1) + '/' + endDateObj.getFullYear();
+								isoEndDate = endDateObj.getFullYear() + '-' + leadingzero(endDateObj.getMonth() + 1) + '-' + leadingzero(endDateObj.getDate());
 
 								//convert UTC to local time hh:mm & round to nearest 30 mins
 								let minutes = Math.round(endDateObj.getMinutes() / 30) * 30;
@@ -280,7 +285,9 @@
 								endTime = leadingzero(hours) + ':' + leadingzero(minutes);
 							}
 
-							$("#outputdiv").append("<div id=\"enddatewrapper\" class=\"validationwrapper\"><label for=\"enddate\"><h3>End Date</h3></label><p>Last date for submitting peer feedback<br /><input type=\"text\"  value=\"" + (endDate != false ? endDate : '') + "\" id=\"enddate\" />&nbsp;<input type=\"hidden\" id=\"hiddendate\" aria-label=\"\" /><select id=\"endtime\" aria-label=\"End time\"></select></p></div>");
+
+
+							$("#outputdiv").append("<div id=\"enddatewrapper\" class=\"validationwrapper\"><label for=\"enddate\"><h3>End Date</h3></label><p>Last date for submitting peer feedback<br /><input type=\"text\"  value=\"" + (endDate != false ? endDate : '') + "\" id=\"enddate\" />&nbsp;<input type=\"hidden\" id=\"hiddendate\" aria-label=\"\" value=\"" + (isoEndDate) + "\" /><select id=\"endtime\" aria-label=\"End time\"></select></p></div>");
 
 							//options from 00:00 to 23:30 in 30 minute intervals
 							for(let i = 0; i < 48; i++){
@@ -544,7 +551,7 @@
 
 
 						function br2nl(str) {
-							return str.replace(/<br\s*.?>/mg, "\n");
+							return (str + '').replace(/<br\s*.?>/mg, "\n");
 						}
 
 
@@ -596,20 +603,20 @@
 
 							}
 
-							// console.log(targetmodule);
-							// console.log(targetmodulename);
+							let createAssignment = await createassignment();
 
-							await createassignment();
+							if(createAssignment !== false){
 
-							if(MODE == 'create'){
-								await creategradeitem();
+								if(MODE == 'create'){
+									await creategradeitem();
+								}
+
+								await createpost();
+
+								$("#statusmsg").html("");
+								$("#buttonwrapper").html("<p><strong>Your Peer Assessment has been " + (MODE == 'create' ? 'created' : 'updated' ) + " in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
+
 							}
-
-							await createpost();
-
-							$("#statusmsg").html("");
-							$("#buttonwrapper").html("<p><strong>Your Peer Assessment has been created in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
-
 						}//end validationok
 
 
@@ -638,7 +645,7 @@
 
 							datestr = $("#hiddendate").val();
 
-							timestr = $("#endtime").children("option:selected").val();
+							timestr = $("#endtime").val();
 
 							enddate = datestr + "T" + timestr + ":00.000";
 
@@ -647,7 +654,6 @@
 							//format is 2020-09-25T16:00:00.000Z
 
 							tempdate = new Date(enddate);
-
 
 							enddate = tempdate.getUTCFullYear() + "-" + leadingzero(tempdate.getUTCMonth() + 1) + "-" + leadingzero(tempdate.getUTCDate()) + "T" + leadingzero(tempdate.getUTCHours()) + ":" + leadingzero(tempdate.getUTCMinutes()) + ":00.000Z"
 
@@ -662,8 +668,8 @@
 								},
 								url: assignurl,
 								data: assignjson
-							}) //end ajax                    
-
+							}) //end ajax
+						
 							AssignmentId = assignreturn.Id;
 
 							return assignreturn;
@@ -707,14 +713,11 @@
 
 						async function createpost() {
 
-							let assignment = AssignmentId;
-
-							//console.log(assignment);
-
 							let createposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/modules/" + targetmodule + "/structure/?renameFileIfExists=true";
 							
-							let configsection = 'var groupcategory = ' + GroupCategoryId + ';\r\nvar assignment = ' + assignment + ';\r\n';
+							let configsection = 'var groupcategory = ' + GroupCategoryId + ';\r\nvar assignment = ' + AssignmentId + ';\r\n';
 
+							let filename = TOPIC.Url.split('/').pop();
 
 							if (document.getElementById('selfassess').checked) {
 								configsection = configsection + "var selfassess=true;\r\n";
@@ -755,9 +758,6 @@
 
 							configsection = configsection + 'var OrgUnitId = ' + OrgUnitId + ';\r\n';
 							
-							console.log(scripturl);
-
-
 							rolesstring = "studentroles=[";
 
 							for (rl = 0; rl < studentroles.length; rl++) {
@@ -846,26 +846,55 @@
 									data: formdata
 								});
 
-								formdata = '--xxBOUNDARYxx\r\nContent-Type: text/html\r\nContent-Disposition: form-data; name="file"; filename="file.htm"\r\n\r\n' + htmlbody + '\r\n---xxBOUNDARYxx--'
+								formdata = '--xxBOUNDARYxx\r\nContent-Disposition: form-data; name="file"; filename="' + filename + '"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n---xxBOUNDARYxx--';
 								
 								createposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/topics/" + TOPIC.Id + "/file";
 
 							}
 
+							let createpost;
 
-							//console.log(formdata);
+							if(MODE == 'create'){
 
+								createpost = await $.ajax({
+									type: (MODE == 'create' ? "POST" : "PUT"),
+									beforeSend: function (request) {
+										request.setRequestHeader("Content-Type", "multipart/" + (MODE == 'create' ? 'mixed' : 'form-data') + ";boundary=xxBOUNDARYxx");
+										request.setRequestHeader("X-Csrf-Token", token.referrerToken);
+									},
+									url: createposturl,
+									data: formdata
+								});
+								
+							} else {
+
+								createpost = new Promise((resolve, reject) => {
+									var xhr = new XMLHttpRequest();
+									xhr.open("PUT", createposturl, true);
+									xhr.setRequestHeader("X-Csrf-Token", token.referrerToken);
+									xhr.setRequestHeader(
+										"Content-Type",
+										"multipart/form-data;boundary=xxBOUNDARYxx"
+									);
+
+									var body = `--xxBOUNDARYxx\r\n`;
+									body += `Content-Disposition:form-data;name="file";filename="${filename}"\r\n`;
+									body += `Content-Type:text/html; charset="UTF-8"\r\n\r\n`;
+									body += `${htmlbody}\r\n`;
+									body += `--xxBOUNDARYxx--`;
+									xhr.send(body);
+									xhr.onload = () => {
+										if (xhr.status >= 200 && xhr.status < 300) {
+											let response = xhr.response;
+											resolve(response);
+										} else {
+											reject(xhr.statusText);
+										}
+									};
+								
+								});
 							
-
-							let createpost = $.ajax({
-								type: (MODE == 'create' ? "POST" : "PUT"),
-								beforeSend: function (request) {
-									request.setRequestHeader("Content-Type", "multipart/" + (MODE == 'create' ? 'mixed' : 'form-data') + "; boundary=xxBOUNDARYxx");
-									request.setRequestHeader("X-Csrf-Token", token.referrerToken);
-								},
-								url: createposturl,
-								data: formdata
-							});
+							}
 
 							return createpost;
 
