@@ -22,7 +22,7 @@
 		//configuration variables
 
 		// if the default module can't be found by name, the assignemnt will be placed in the first module of the course
-		var defaultmodule = "Assessment";
+		var defaultmodule = "Peer Assessment";
 
 		// instructions for the student
 		var defaultinstructions = "Peer Assessment allows you to adjust the scores of your team members to reflect their contribution to the group.\r\n\r\nYour instructor will be able to see your ratings but your peers will only see them in an anonymous form.";
@@ -149,6 +149,8 @@
 						var whoamiresponse;
 						var groupsize;
 
+						var minQuestions = 1;
+
 						$(function () {
 							init();
 						});
@@ -219,14 +221,18 @@
 										FILE_VARS.questions.push(match[1]);
 									}
 
+									minQuestions = FILE_VARS.questions.length;
+
 									const promises = await Promise.all([TOPIC, GROUP_CATEGORY, ASSIGNMENT]);
 
 									TOPIC = promises[0];
 									GROUP_CATEGORY = promises[1];
 									ASSIGNMENT = promises[2];
 									
-									FILE_VARS.criteriaMaxPoints = FILE.match(/var\s+criteriaMaxPoints\s*=\s*(\d+);/)[1];
-
+									// for compatibility with older versions which didn't have criteriaMaxPoints (default to 5)
+									let criteriaMaxPointsMatch = FILE.match(/var\s+criteriaMaxPoints\s*=\s*(\d+);/);
+									FILE_VARS.criteriaMaxPoints = (criteriaMaxPointsMatch ? criteriaMaxPointsMatch[1] : 5);
+									
 								}
 
 								gettoken();
@@ -258,7 +264,7 @@
 
 							$("#outputdiv").append("<div class=\"well\"><p>To view responses on peer assessments which have already been set up, you need to use the link in the Content area. By default, this would have been created in the " + defaultmodule + " area if present.</p>");
 
-							$("#outputdiv").append("<div id=\"activitynamewrapper\" class=\"validationwrapper\"><label for=\"activityname\"><h2>Activity Name</h2><p>eg Peer Assessment</label><br /><input type=\"text\" size=\"80\" value=\"" + (TOPIC != false ? TOPIC.Title : '') + "\" id=\"activityname\" /></p></div>");
+							$("#outputdiv").append("<div id=\"activitynamewrapper\" class=\"validationwrapper\"><label for=\"activityname\" style=\"width:100%\"><h2>Activity Name</h2><p>eg Peer Assessment</label><br /><input type=\"text\" style=\"width:100%\" value=\"" + (TOPIC != false ? TOPIC.Title : '') + "\" id=\"activityname\" /></p></div>");
 
 							let endDate = false;
 							let endTime = false;
@@ -328,13 +334,13 @@
 								$("#outputdiv").append("<div id=\"criteriamaxpointswrapper\" class=\"validationwrapper\"><label for=\"criteriamaxpoints\"><h3>Maximum Points per Criterium</h3><p><input type=\"text\" value=\"5\" id=\"criteriamaxpoints\" /></p></label></div>");
 
 								$("#outputdiv").append("<div id=\"gradeitemmaxpointswrapper\" class=\"validationwrapper\"><label for=\"gradeitemmaxpoints\"><h3>Maximum Points for Associated Grade Item</h3><p><input type=\"text\" value=\"100\" id=\"gradeitemmaxpoints\" /></p></label></div>");
-							}
 
-							$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Assessment</h3><p><input type=\"checkbox\" id=\"selfassess\"" + (FILE_VARS && FILE_VARS.selfassess == 'true' ? ' checked' : '') + " /> Students should assess their own contribution as well as other group members</p></label></div>");
+								$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Assessment</h3><p><input type=\"checkbox\" id=\"selfassess\" /> Students should assess their own contribution as well as other group members</p></label></div>");
+							}
 
 							$("#outputdiv").append("<div id=\"commentswrapper\" class=\"validationwrapper\"><label for=\"commentfields\"><h3>Student comments</h3><p><input type=\"checkbox\" id=\"commentfields\"" + (FILE_VARS && FILE_VARS.commentfields == 'true' ? ' checked' : '') + " /> Provide a space for students to explain their marks. You can choose to publish these as feedback, in anonymous form, when you review the feedback.</p></div>");
 
-							$("#outputdiv").append("<div id=\"instructionswrapper\" class=\"validationwrapper\"><label for=\"instructions\"><h3>Instructions to students </h3></label><p><textarea cols=\"80\" rows=\"6\" id=\"instructions\" >" + (FILE_VARS ? br2nl(FILE_VARS.instructions) : defaultinstructions) + "</textarea></div>");
+							$("#outputdiv").append("<div id=\"instructionswrapper\" class=\"validationwrapper\"><label for=\"instructions\"><h3>Instructions to students </h3></label><p><textarea style=\"width:100%;height:160px;\" id=\"instructions\" >" + (FILE_VARS ? br2nl(FILE_VARS.instructions) : defaultinstructions) + "</textarea></div>");
 
 							$("#outputdiv").append("<p id=\"buttonwrapper\"><input type=\"button\" class=\"btn-primary\" id=\"submitbutton\" onclick=\"validate()\" value=\"" + (FILE_VARS ? 'Save Peer Assessment' : 'Set up the Peer Assessment') + "\"/></p><p id=\"statusmsg\"></p>");
 							$("#outputdiv").append("<p>&nbsp;</p>");
@@ -419,7 +425,11 @@
 
 						function addfield(value = false) {
 
-							$("#questions").append("<p><input type=\"text\" size=\"80\" class=\"questioninput\" " + (value != false ? ' value="' + value + '" ' : '') + "/></p>");
+							let newField = "<p><input type=\"text\" style=\"width:" + ($('.questioninput').length >= minQuestions ? "calc(100% - 90px)" : "100%") + "\" class=\"questioninput\" " + (value != false ? ' value="' + value + '" ' : '') + "/>" +
+								($('.questioninput').length >= minQuestions ? " <input type=\"button\" onclick=\"$(this).parent().remove();\" value=\"Remove\" />" : '') +
+								"</p>";
+
+							$("#questions").append(newField);
 
 						}
 
@@ -719,27 +729,27 @@
 
 							let filename = TOPIC.Url.split('/').pop();
 
-							if (document.getElementById('selfassess').checked) {
-								configsection = configsection + "var selfassess=true;\r\n";
+							if (MODE == 'create' && document.getElementById('selfassess').checked || MODE == 'edit' && FILE_VARS.selfassess == 'true') {
+								configsection += "var selfassess=true;\r\n";
 							} else {
-								configsection = configsection + "var selfassess=false;\r\n";
+								configsection += "var selfassess=false;\r\n";
 							}
 
 
 							if (document.getElementById('commentfields').checked) {
-								configsection = configsection + "var commentfields=true;\r\n";
+								configsection += "var commentfields=true;\r\n";
 							} else {
-								configsection = configsection + "var commentfields=false;\r\n";
+								configsection += "var commentfields=false;\r\n";
 							}
 
 
 
-							configsection = configsection + 'var instructions="' + clean($("#instructions").val()) + '";\r\n';
+							configsection += 'var instructions="' + clean($("#instructions").val()) + '";\r\n';
 
-							configsection = configsection + 'var questions = new Array();\r\n';
-							configsection = configsection + 'var GradeItemId = ' + GradeItemId + ';\r\n';
+							configsection += 'var questions = new Array();\r\n';
+							configsection += 'var GradeItemId = ' + GradeItemId + ';\r\n';
 
-							configsection = configsection + 'var criteriaMaxPoints = ' + 
+							configsection += 'var criteriaMaxPoints = ' + 
 								(MODE == 'create' ? parseInt($("#criteriamaxpoints").val()) : FILE_VARS.criteriaMaxPoints) + 
 								';\r\n';
 
@@ -749,14 +759,14 @@
 
 								if ($(this).val() != "") {
 
-									configsection = configsection + 'questions[' + criteriacount + '] = "' + clean($(this).val()) + '";\r\n';
+									configsection += 'questions[' + criteriacount + '] = "' + clean($(this).val()) + '";\r\n';
 									criteriacount++;
 								}
 
 
 							});
 
-							configsection = configsection + 'var OrgUnitId = ' + OrgUnitId + ';\r\n';
+							configsection += 'var OrgUnitId = ' + OrgUnitId + ';\r\n';
 							
 							rolesstring = "studentroles=[";
 
@@ -772,7 +782,7 @@
 
 							rolesstring = rolesstring + "];\r\n";
 
-							configsection = configsection + rolesstring;
+							configsection += rolesstring;
 
 							// { } are used instead of < > just to avoid syntax interpreter issues with VSCODE ¯\_(ツ)_/¯
 							htmlbody = '{!DOCTYPE html}\r\n{html}\r\n{head}\r\n{meta charset="utf-8"}\r\n{meta http-equiv="x-ua-compatible" content="ie=edge"}\r\n{title}' + clean($("#activityname").val()) + '{/title}\r\n{meta name="description" content=""}\r\n{meta name="viewport" content="width=device-width, initial-scale=1.0"}\r\n' + 
@@ -817,23 +827,23 @@
 								let updateposturl = '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/content/topics/' + TOPIC.Id;
 
 								formdata = {
-										"Title": clean($("#activityname").val()),
-										"ShortTitle": clean($("#activityname").val()),
-										"Type": 1,
-										"TopicType":1,
-										"Url": TOPIC.Url,
-										"StartDate": null,
-										"EndDate": enddate,
-										"DueDate": null,
-										"IsHidden": TOPIC.IsHidden,
-										"IsLocked": TOPIC.IsLocked,
-										"OpenAsExternalResource": false,
-										"Description": null,
-										"MajorUpdate": null,
-										"MajorUpdateText": '',
-										"ResetCompletionTracking": null,
-										"Duration": null
-									};
+									"Title": clean($("#activityname").val()),
+									"ShortTitle": clean($("#activityname").val()),
+									"Type": 1,
+									"TopicType":1,
+									"Url": TOPIC.Url,
+									"StartDate": null,
+									"EndDate": enddate,
+									"DueDate": null,
+									"IsHidden": TOPIC.IsHidden,
+									"IsLocked": TOPIC.IsLocked,
+									"OpenAsExternalResource": false,
+									"Description": null,
+									"MajorUpdate": null,
+									"MajorUpdateText": '',
+									"ResetCompletionTracking": null,
+									"Duration": null
+								};
 
 								formdata = JSON.stringify(formdata);
 
@@ -846,55 +856,44 @@
 									data: formdata
 								});
 
-								formdata = '--xxBOUNDARYxx\r\nContent-Disposition: form-data; name="file"; filename="' + filename + '"\r\nContent-Type: text/html\r\n\r\n' + htmlbody + '\r\n---xxBOUNDARYxx--';
+								// delete the original file to keep file management clean
+								await $.ajax({
+									type: "DELETE",
+									beforeSend: function (request) {
+										request.setRequestHeader("X-Csrf-Token", token.referrerToken);
+									},
+									url: '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/managefiles/file/?path=' + encodeURIComponent(TOPIC.Url)
+								});
+
+								formdata = `--xxBOUNDARYxx\r\n`;
+								formdata += `Content-Disposition:form-data;name="file";filename="${filename}"\r\n`;
+								formdata += `Content-Type:text/html; charset="UTF-8"\r\n\r\n`;
+								formdata += `${htmlbody}\r\n`;
+								formdata += `--xxBOUNDARYxx--`;
 								
 								createposturl = "/d2l/api/le/" + version.le + "/" + OrgUnitId + "/content/topics/" + TOPIC.Id + "/file";
 
 							}
 
-							let createpost;
+							let createpost = await new Promise((resolve, reject) => {
 
-							if(MODE == 'create'){
-
-								createpost = await $.ajax({
-									type: (MODE == 'create' ? "POST" : "PUT"),
-									beforeSend: function (request) {
-										request.setRequestHeader("Content-Type", "multipart/" + (MODE == 'create' ? 'mixed' : 'form-data') + ";boundary=xxBOUNDARYxx");
-										request.setRequestHeader("X-Csrf-Token", token.referrerToken);
-									},
-									url: createposturl,
-									data: formdata
-								});
+								var xhr = new XMLHttpRequest();
+								xhr.open(MODE == 'create' ? "POST" : "PUT", createposturl, true);
+								xhr.setRequestHeader("Content-Type", "multipart/" + (MODE == 'create' ? 'mixed' : 'form-data') + ";boundary=xxBOUNDARYxx");
+								xhr.setRequestHeader("X-Csrf-Token", token.referrerToken);
 								
-							} else {
-
-								createpost = new Promise((resolve, reject) => {
-									var xhr = new XMLHttpRequest();
-									xhr.open("PUT", createposturl, true);
-									xhr.setRequestHeader("X-Csrf-Token", token.referrerToken);
-									xhr.setRequestHeader(
-										"Content-Type",
-										"multipart/form-data;boundary=xxBOUNDARYxx"
-									);
-
-									var body = `--xxBOUNDARYxx\r\n`;
-									body += `Content-Disposition:form-data;name="file";filename="${filename}"\r\n`;
-									body += `Content-Type:text/html; charset="UTF-8"\r\n\r\n`;
-									body += `${htmlbody}\r\n`;
-									body += `--xxBOUNDARYxx--`;
-									xhr.send(body);
-									xhr.onload = () => {
-										if (xhr.status >= 200 && xhr.status < 300) {
-											let response = xhr.response;
-											resolve(response);
-										} else {
-											reject(xhr.statusText);
-										}
-									};
-								
-								});
+								xhr.send(formdata);
+								xhr.onload = () => {
+									if (xhr.status >= 200 && xhr.status < 300) {
+										let response = xhr.response;
+										resolve(response);
+									} else {
+										reject(xhr.statusText);
+									}
+								};
 							
-							}
+							});
+							
 
 							return createpost;
 

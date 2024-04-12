@@ -259,7 +259,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                                 $("#row-" + classlistresponse[l].UserId).append("<td><span id=\"average-" + classlistresponse[l].UserId + "\">" + average + "</span></td>");
 
                                                                 if (commentfields == true) {
-                                                                    let comment = (studentratings !== false && classlistresponse[l].UserId in studentratings ? studentratings[classlistresponse[l].UserId]['comment'] : '');
+                                                                    let comment = (studentratings !== false && classlistresponse[l].UserId in studentratings && 'comment' in studentratings[classlistresponse[l].UserId] ? studentratings[classlistresponse[l].UserId]['comment'] : '');
                                                                     $("#scoretablebody").append("<tr><td colspan=\"" + (questions.length + 1) + "\">Briefly explain your mark for " + classlistresponse[l].FirstName + "<br /><input type=\"text\" size=\"100%\" class=\"studentcomment\" id=\"Comment-" + classlistresponse[l].UserId + "\"  aria-label=\"Briefly explain your mark for " + classlistresponse[l].DisplayName + "\" value=\"" + comment + "\"></td></tr>");
                                                                 }
 
@@ -378,7 +378,7 @@ getAssignment(assignment).then(assignmentObject => {
 
                                 $("#peeroutput").append('<p class="header-four">Ratings are all out of ' + criteriaMaxPoints + '.</p>');
 
-                                $('#peeroutput').append('<p><button id="editassignment">Edit Assignment</button></p>');
+                                $('#peeroutput').append('<p><button id="editassignment">Edit Peer Assessment</button></p>');
 
                                 $('#editassignment').click(function () {
                                     let url = new URL(currentScript.src);
