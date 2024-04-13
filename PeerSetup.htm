@@ -621,11 +621,15 @@
 									await creategradeitem();
 								}
 
-								await createpost();
+								let newPost = await createpost();
 
-								$("#statusmsg").html("");
-								$("#buttonwrapper").html("<p><strong>Your Peer Assessment has been " + (MODE == 'create' ? 'created' : 'updated' ) + " in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
-
+								if(MODE == 'create'){
+									// $("#statusmsg").html("");
+									// $("#buttonwrapper").html("<p><strong>Your Peer Assessment has been " + (MODE == 'create' ? 'created' : 'updated' ) + " in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
+									window.top.location.href = "/d2l/le/content/" + OrgUnitId + "/viewContent/" + newPost.Id + "/View"
+								} else {
+									window.top.location.reload();
+								}
 							}
 						}//end validationok
 
@@ -885,7 +889,7 @@
 								xhr.send(formdata);
 								xhr.onload = () => {
 									if (xhr.status >= 200 && xhr.status < 300) {
-										let response = xhr.response;
+										let response = (xhr.response != '' ? JSON.parse(xhr.response) : '');
 										resolve(response);
 									} else {
 										reject(xhr.statusText);
