@@ -624,8 +624,6 @@
 								let newPost = await createpost();
 
 								if(MODE == 'create'){
-									// $("#statusmsg").html("");
-									// $("#buttonwrapper").html("<p><strong>Your Peer Assessment has been " + (MODE == 'create' ? 'created' : 'updated' ) + " in the " + targetmodulename + " area of <a href=\"/d2l/le/content/" + OrgUnitId + "/Home\" target=\"_top\">Content</a></strong></p>");
 									window.top.location.href = "/d2l/le/content/" + OrgUnitId + "/viewContent/" + newPost.Id + "/View"
 								} else {
 									window.top.location.reload();
