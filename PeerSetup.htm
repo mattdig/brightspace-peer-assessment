@@ -729,8 +729,6 @@
 							
 							let configsection = 'var groupcategory = ' + GroupCategoryId + ';\r\nvar assignment = ' + AssignmentId + ';\r\n';
 
-							let filename = TOPIC.Url.split('/').pop();
-
 							if (MODE == 'create' && document.getElementById('selfassess').checked || MODE == 'edit' && FILE_VARS.selfassess == 'true') {
 								configsection += "var selfassess=true;\r\n";
 							} else {
@@ -858,14 +856,7 @@
 									data: formdata
 								});
 
-								// delete the original file to keep file management clean
-								await $.ajax({
-									type: "DELETE",
-									beforeSend: function (request) {
-										request.setRequestHeader("X-Csrf-Token", token.referrerToken);
-									},
-									url: '/d2l/api/le/' + version.le + '/' + OrgUnitId + '/managefiles/file/?path=' + encodeURIComponent(TOPIC.Url)
-								});
+								let filename = TOPIC.Url.split('/').pop();
 
 								formdata = `--xxBOUNDARYxx\r\n`;
 								formdata += `Content-Disposition:form-data;name="file";filename="${filename}"\r\n`;
@@ -887,7 +878,7 @@
 								xhr.send(formdata);
 								xhr.onload = () => {
 									if (xhr.status >= 200 && xhr.status < 300) {
-										let response = (xhr.response != '' ? JSON.parse(xhr.response) : '');
+										let response = (xhr.response != '' ? JSON.parse(xhr.response) : true);
 										resolve(response);
 									} else {
 										reject(xhr.statusText);
@@ -895,7 +886,18 @@
 								};
 							
 							});
-							
+
+							if(MODE == 'edit' && createpost === true){
+								// editing the original actually creates a new copy,
+								// delete the original file to keep file management clean
+								await $.ajax({
+									type: "DELETE",
+									beforeSend: function (request) {
+										request.setRequestHeader("X-Csrf-Token", token.referrerToken);
+									},
+									url: '/d2l/api/lp/' + version.lp + '/' + OrgUnitId + '/managefiles/file?path=' + encodeURIComponent(TOPIC.Url)
+								});
+							}
 
 							return createpost;
 
