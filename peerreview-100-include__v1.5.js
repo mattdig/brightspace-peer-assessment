@@ -202,7 +202,7 @@ getAssignment(assignment).then(assignmentObject => {
                                                 $("#peeroutput").append('<p class="header-three">Last day to submit your responses: ' + deadlineString + '</p>');
 
                                                 if(studentratings){
-                                                    $("#peeroutput").append("<p>You have already submitted your response to this peer assessment activity. You may review or change your responses.</p>");
+                                                    $("#peeroutput").append("<p>You have already submitted your response to this peer feedback activity. You may review or change your responses.</p>");
                                                 }
 
                                                 $("#peeroutput").append('<p class="header-four">Ratings are all out of ' + criteriaMaxPoints + '.</p>');
@@ -372,13 +372,13 @@ getAssignment(assignment).then(assignmentObject => {
 
                                 //set up the basic table
 
-                                $("#peeroutput").html("<p class=\"well\">The Student view of this screen allows them to register their Peer Assessment. This view shows you the feedback provided.</p>");
+                                $("#peeroutput").html("<p class=\"well\">The Student view of this screen allows them to register their Peer Feedback. This view shows you the feedback provided.</p>");
 
                                 $("#peeroutput").append('<p class="header-three">Last day for students to submit their responses: ' + deadlineString + '</p>');
 
                                 $("#peeroutput").append('<p class="header-four">Ratings are all out of ' + criteriaMaxPoints + '.</p>');
 
-                                $('#peeroutput').append('<p><button id="editassignment">Edit Peer Assessment</button></p>');
+                                $('#peeroutput').append('<p><button id="editassignment">Edit Peer Feedback</button></p>');
 
                                 $('#editassignment').click(function () {
                                     let url = new URL(currentScript.src);
@@ -389,7 +389,7 @@ getAssignment(assignment).then(assignmentObject => {
                                     window.location.href = path;
                                 });
 
-                                $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th>Org Defined ID</th><th>Peer Assessment submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
+                                $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th>Org Defined ID</th><th>Peer Feedback submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
 
 
 
@@ -1198,7 +1198,7 @@ function studentsubmit() {
 
                 // change the filename as desired
 
-                var fileHeader = 'Content-Disposition: form-data; name="file"; filename="PeerAssessment.txt"\r\nContent-Type: text/plain';
+                var fileHeader = 'Content-Disposition: form-data; name="file"; filename="PeerFeedback.txt"\r\nContent-Type: text/plain';
 
                 // change the file content as desired
 
