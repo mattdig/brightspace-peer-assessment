@@ -320,10 +320,10 @@
 
 								$("#outputdiv").append("<div id=\"gradeitemmaxpointswrapper\" class=\"validationwrapper\"><label for=\"gradeitemmaxpoints\"><h3>Maximum Points for Associated Grade Item</h3><p><input type=\"text\" value=\"100\" id=\"gradeitemmaxpoints\" /></p></label></div>");
 
-								$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Assessment</h3><p><input type=\"checkbox\" id=\"selfassess\" /> Students should provide feedback on their own contribution as well as other group members</p></label></div>");
+								$("#outputdiv").append("<div id=\"selfassesswrapper\" class=\"validationwrapper\"><label for=\"selfassess\"><h3>Self Review</h3><p><input type=\"checkbox\" id=\"selfassess\" /> Students should provide feedback on their own contribution as well as other group members</p></label></div>");
 							}
 
-							$("#outputdiv").append("<div id=\"commentswrapper\" class=\"validationwrapper\"><label for=\"commentfields\"><h3>Student comments</h3><p><input type=\"checkbox\" id=\"commentfields\"" + (FILE_VARS && FILE_VARS.commentfields == 'true' ? ' checked' : '') + " /> Provide a space for students to explain their marks. You can choose to publish these as feedback, in anonymous form, when you review the feedback.</p></div>");
+							$("#outputdiv").append("<div id=\"commentswrapper\" class=\"validationwrapper\"><label for=\"commentfields\"><h3>Student comments</h3><p><input type=\"checkbox\" id=\"commentfields\"" + (FILE_VARS && FILE_VARS.commentfields == 'true' ? ' checked' : '') + " /> Provide a space for students to explain themselves. You can choose whether to publish these comments as anonymous feedback on in the grades.</p></div>");
 
 							$("#outputdiv").append("<div id=\"instructionswrapper\" class=\"validationwrapper\"><label for=\"instructions\"><h3>Instructions to students </h3></label><p><textarea style=\"width:100%;height:160px;\" id=\"instructions\" >" + (FILE_VARS ? br2nl(FILE_VARS.instructions) : defaultinstructions) + "</textarea></div>");
 
