@@ -316,7 +316,7 @@
 							questions();
 
 							if(MODE == 'create'){
-								$("#outputdiv").append("<div id=\"criteriamaxpointswrapper\" class=\"validationwrapper\"><label for=\"criteriamaxpoints\"><h3>Maximum Points per Criterium</h3><p><input type=\"text\" value=\"5\" id=\"criteriamaxpoints\" /></p></label></div>");
+								$("#outputdiv").append("<div id=\"criteriamaxpointswrapper\" class=\"validationwrapper\"><label for=\"criteriamaxpoints\"><h3>Maximum Points per Criterion</h3><p><input type=\"text\" value=\"5\" id=\"criteriamaxpoints\" /></p></label></div>");
 
 								$("#outputdiv").append("<div id=\"gradeitemmaxpointswrapper\" class=\"validationwrapper\"><label for=\"gradeitemmaxpoints\"><h3>Maximum Points for Associated Grade Item</h3><p><input type=\"text\" value=\"100\" id=\"gradeitemmaxpoints\" /></p></label></div>");
 
@@ -498,7 +498,7 @@
 								if (isNaN(criteriaMaxPoints) || criteriaMaxPoints.length == 0 || criteriaMaxPoints < 1 || criteriaMaxPoints > 100) {
 									validationerrors++;
 
-									$("#statusmsg").append("<p>Maximum points per criterium must be a number between 1 and 100</p>");
+									$("#statusmsg").append("<p>Maximum points per criterion must be a number between 1 and 100</p>");
 									$("#criteriamaxpointswrapper").css("background-color", "#f098e5");
 
 								}
