@@ -382,14 +382,7 @@
 
 						function questions() {
 
-
-							GroupCategoryId = $("#GroupCategoryId").val();
-
-
 							//now create the questions list
-
-
-
 							$("#questionfields").append("<p>Enter the criteria you want students to provide feedback for each other on. Ideally, please keep these brief.</p>");
 
 							$("#questionfields").append("<div id=\"questions\"></div>");
@@ -459,8 +452,12 @@
 
 
 							//groups
+							if($('#GroupCategoryId').length > 0)
+								GroupCategoryId = $('#GroupCategoryId').val();
+							else
+								GroupCategoryId = $("input[name=groupcategoryid]:checked").val();
 
-							GroupCategoryId = $("#GroupCategoryId").val();
+
 
 							if (isNaN(GroupCategoryId)) {
 								validationerrors++;
