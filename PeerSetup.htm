@@ -354,7 +354,7 @@
 
 										for (g = 0; g < groupresponse.length; g++) {
 
-											$("#grouptable").append("<tr><td><input type=\"radio\" id=\"GroupCategoryId\" value=\"" + groupresponse[g].GroupCategoryId + "\" id=\"radio-" + groupresponse[g].GroupCategoryId + "\"onchange=\"enablesubmit()\"" + (FILE_VARS.GroupCategoryId == groupresponse[g].GroupCategoryId ? ' checked' : '') + "></input></td><td><label for=\"radio-" + groupresponse[g].GroupCategoryId + "\">" + groupresponse[g].Name + "</label></td></tr>");
+											$("#grouptable").append("<tr><td><input name=\"groupcategoryid\" type=\"radio\" value=\"" + groupresponse[g].GroupCategoryId + "\" id=\"radio-" + groupresponse[g].GroupCategoryId + "\"onchange=\"enablesubmit()\"" + (FILE_VARS.GroupCategoryId == groupresponse[g].GroupCategoryId ? ' checked' : '') + "></input></td><td><label for=\"radio-" + groupresponse[g].GroupCategoryId + "\">" + groupresponse[g].Name + "</label></td></tr>");
 
 										} //end for
 
