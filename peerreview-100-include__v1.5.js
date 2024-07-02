@@ -370,302 +370,300 @@ getAssignment(assignment).then(assignmentObject => {
 
                             } else {
 
-                                //set up the basic table
+                                classlisturl = "/d2l/api/le/1.35/" + OrgUnitId + "/classlist/paged/";
 
-                                $("#peeroutput").html("<p class=\"well\">The Student view of this screen allows them to register their Peer Feedback. This view shows you the feedback provided.</p>");
+                                getClasslist(classlisturl).then(classlistresponse_tmp => {
 
-                                $("#peeroutput").append('<p class="header-three">Last day for students to submit their responses: ' + deadlineString + '</p>');
+                                    let classlistresponse = classlistresponse_tmp.Objects;
+                                    let classlist = {};
 
-                                $("#peeroutput").append('<p class="header-four">Ratings are all out of ' + criteriaMaxPoints + '.</p>');
+                                    for(const student of classlistresponse){
+                                        classlist[student.Identifier] = student;
+                                    }
 
-                                $('#peeroutput').append('<p><button id="editassignment">Edit Peer Feedback</button></p>');
+                                    //set up the basic table
 
-                                $('#editassignment').click(function () {
-                                    let url = new URL(currentScript.src);
-                                    path = url.pathname.split('/');
-                                    path.pop();
-                                    path = path.join('/') + '/PeerSetup.htm?' + OrgUnitId + '&edit';
+                                    $("#peeroutput").html("<p class=\"well\">The Student view of this screen allows them to register their Peer Feedback. This view shows you the feedback provided.</p>");
 
-                                    window.location.href = path;
-                                });
+                                    $("#peeroutput").append('<p class="header-three">Last day for students to submit their responses: ' + deadlineString + '</p>');
 
-                                $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th>Org Defined ID</th><th>Peer Feedback submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
+                                    $("#peeroutput").append('<p class="header-four">Ratings are all out of ' + criteriaMaxPoints + '.</p>');
 
+                                    $('#peeroutput').append('<p><button id="editassignment">Edit Peer Feedback</button></p>');
 
+                                    $('#editassignment').click(function () {
+                                        let url = new URL(currentScript.src);
+                                        path = url.pathname.split('/');
+                                        path.pop();
+                                        path = path.join('/') + '/PeerSetup.htm?' + OrgUnitId + '&edit';
 
+                                        window.location.href = path;
+                                    });
 
-                                for (q = 1; q < questions.length; q++) {
+                                    $("#peeroutput").append("<div style=\"width:100%;overflow-x:scroll\"><table id=\"outputtable\" class=\"display compact cell-border\" style=\"width:100%\"><thead id=\"outputtablehead\" ><tr id=\"headrow\"><!--<th>Group ID</th>--><th>Group Name</th><!--<th>Student Internal ID</th>--><th>Student Name</th><th>Org Defined ID</th><th>Peer Feedback submitted?</th><th>Ratings Received</th></thead><tbody id=\"outputtablebody\"></tbody></table></div><div id=\"exportbuttonplaceholder\"></div><div id=\"staffnotes\"></div><h3>Individual responses</h3><div style=\"width:100%;overflow-x:scroll\"><table class=\"display compact cell-border\" id=\"votestable\"><thead id=\"votestablehead\"><tr id=\"votesheadrow\"><th>Voter Name</th><th>Vote Recipient</th></tr></thead><tbody id=\"votestablebody\"></tbody></table></div>");
 
-                                    $("#headrow").append("<th style=\"display:none\">" + questions[q] + "</th>");
-                                    $("#headrow").append("<th>" + questions[q] + " (avg / " + criteriaMaxPoints + ")</th>");
 
-                                    $("#votesheadrow").append("<th>" + questions[q] + "</th>");
 
-                                }
 
+                                    for (q = 1; q < questions.length; q++) {
 
+                                        $("#headrow").append("<th style=\"display:none\">" + questions[q] + "</th>");
+                                        $("#headrow").append("<th>" + questions[q] + " (avg / " + criteriaMaxPoints + ")</th>");
 
+                                        $("#votesheadrow").append("<th>" + questions[q] + "</th>");
 
-                                if (commentfields == true) {
-                                    $("#votesheadrow").append("<th>Comments</th><th>&nbsp;</th>");
-                                }
+                                    }
 
 
 
-                                $("#headrow").append("<th>Average peer score</th>");
 
+                                    if (commentfields == true) {
+                                        $("#votesheadrow").append("<th>Comments</th><th>&nbsp;</th>");
+                                    }
 
-                                for (g = 0; g < groupresponse.length; g++) {
 
 
-                                    for (e = 0; e < groupresponse[g].Enrollments.length; e++) {
+                                    $("#headrow").append("<th>Average peer score</th>");
 
-                                        $("#outputtablebody").append("<tr id=\"row-" + groupresponse[g].Enrollments[e] + "\"><!--<td>" + groupresponse[g]["GroupId"] + "</td>--><td>" + groupresponse[g]["Name"] + "</td><!--<td>" + groupresponse[g].Enrollments[e] + "</td>--><td><span id=\"name-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"orgdefinedid-" + groupresponse[g].Enrollments[e] + "\"></span><td><span id=\"voted-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"ratings-" + groupresponse[g].Enrollments[e] + "\">0</span></td></tr>");
 
-                                        for (q = 1; q < questions.length; q++) {
+                                    for (g = 0; g < groupresponse.length; g++) {
 
-                                            $("#row-" + groupresponse[g].Enrollments[e]).append("<td style=\"display:none\"><span id=\"q" + q + "-" + groupresponse[g].Enrollments[e] + "\" >0</span></td>");
 
-                                            $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"pq" + q + "-" + groupresponse[g].Enrollments[e] + "\">0</span></td>");
+                                        for (e = 0; e < groupresponse[g].Enrollments.length; e++) {
 
-                                        }
+                                            if(classlist[groupresponse[g].Enrollments[e]] !== undefined){
 
-                                        //default average column to defulatgrade if no votes received
-                                        $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"average-" + groupresponse[g].Enrollments[e] + "\">0</span></td>");
+                                                $("#outputtablebody").append("<tr id=\"row-" + groupresponse[g].Enrollments[e] + "\"><!--<td>" + groupresponse[g]["GroupId"] + "</td>--><td>" + groupresponse[g]["Name"] + "</td><!--<td>" + groupresponse[g].Enrollments[e] + "</td>--><td><span id=\"name-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"orgdefinedid-" + groupresponse[g].Enrollments[e] + "\"></span><td><span id=\"voted-" + groupresponse[g].Enrollments[e] + "\"></span></td><td><span id=\"ratings-" + groupresponse[g].Enrollments[e] + "\">0</span></td></tr>");
 
-                                    } //end for e
+                                                for (q = 1; q < questions.length; q++) {
 
+                                                    $("#row-" + groupresponse[g].Enrollments[e]).append("<td style=\"display:none\"><span id=\"q" + q + "-" + groupresponse[g].Enrollments[e] + "\" >0</span></td>");
 
+                                                    $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"pq" + q + "-" + groupresponse[g].Enrollments[e] + "\">0</span></td>");
 
-                                } //end for g
+                                                }
 
+                                                //default average column to defulatgrade if no votes received
+                                                $("#row-" + groupresponse[g].Enrollments[e]).append("<td><span id=\"average-" + groupresponse[g].Enrollments[e] + "\">0</span></td>");
+                                            
+                                            }
 
+                                        } //end for e
 
-                                //get the classlist
 
-                                classlisturl = "/d2l/api/le/1.35/" + OrgUnitId + "/classlist/";
 
+                                    } //end for g
 
-                                $.ajax({
-                                    method: "GET",
-                                    url: classlisturl,
-                                    dataType: 'json',
-                                    success: function (classlistresponse_tmp) {
-                                        classlistresponse = classlistresponse_tmp;
 
 
+                                    //get the classlist
+                                    for (const id in classlist) {
 
-                                        for (l = 0; l < classlistresponse.length; l++) {
+                                        $("#name-" + id).html(classlist[id].DisplayName);
+                                        $("#orgdefinedid-" + id).html(classlist[id].OrgDefinedId);
 
-                                            $("#name-" + classlistresponse[l].Identifier).html(classlistresponse[l].DisplayName);
-                                            $("#orgdefinedid-" + classlistresponse[l].Identifier).html(classlistresponse[l].OrgDefinedId);
 
+                                    } //end for l
 
-                                        } //end for l
 
 
 
+                                    //get the assignment response and fill in the blanks
 
-                                        //get the assignment response and fill in the blanks
 
+                                    assignmentgeturl = "/d2l/api/le/1.36/" + OrgUnitId + "/dropbox/folders/" + assignment + "/submissions/";
 
-                                        assignmentgeturl = "/d2l/api/le/1.36/" + OrgUnitId + "/dropbox/folders/" + assignment + "/submissions/";
+                                    $.ajax({
+                                        method: "GET",
+                                        url: assignmentgeturl,
+                                        dataType: 'json',
+                                        success: function (submissions) {
 
-                                        $.ajax({
-                                            method: "GET",
-                                            url: assignmentgeturl,
-                                            dataType: 'json',
-                                            success: function (submissions) {
 
+                                            prevstudent = 0;
 
-                                                prevstudent = 0;
+                                            for (s = 0; s < submissions.length; s++) {
+                                                //console.log(submissions[s]);
+                                                $("#voted-" + submissions[s].Entity.EntityId).html("Y");
 
-                                                for (s = 0; s < submissions.length; s++) {
-                                                    //console.log(submissions[s]);
-                                                    $("#voted-" + submissions[s].Entity.EntityId).html("Y");
 
+                                                //get the most recent submission from this student
 
-                                                    //get the most recent submission from this student
+                                                comment = "";
+                                                comment = submissions[s].Submissions[submissions[s].Submissions.length - 1].Comment.Text;
+                                                //console.log(comment);
 
-                                                    comment = "";
-                                                    comment = submissions[s].Submissions[submissions[s].Submissions.length - 1].Comment.Text;
-                                                    //console.log(comment);
 
+                                                //do some santity checking on comment
 
-                                                    //do some santity checking on comment
+                                                validationerrors = 0;
+                                                validationmsg = "";
 
-                                                    validationerrors = 0;
-                                                    validationmsg = "";
+                                                if ((((comment.match(/\^/g) || []).length)) != (((comment.match(/\$/g) || []).length))) {
 
-                                                    if ((((comment.match(/\^/g) || []).length)) != (((comment.match(/\$/g) || []).length))) {
+                                                    validationerrors++;
+                                                    validationmsg = validationmsg = "<p>Ratings from student " + submissions[s].Entity.DisplayName + " rejected: invalid format</p>";
+                                                }
 
-                                                        validationerrors++;
-                                                        validationmsg = validationmsg = "<p>Ratings from student " + submissions[s].Entity.DisplayName + " rejected: invalid format</p>";
-                                                    }
 
+                                                //split comment at $ characters to separate each student ratings-
 
-                                                    //split comment at $ characters to separate each student ratings-
 
+                                                // always use length-1 due to trailing $ - last element of array is empty
 
-                                                    // always use length-1 due to trailing $ - last element of array is empty
 
+                                                studentratings = comment.split("$");
 
-                                                    studentratings = comment.split("$");
+                                                if (validationerrors > 0) {
 
-                                                    if (validationerrors > 0) {
+                                                    $("#staffnotes").append(validationmsg);
 
-                                                        $("#staffnotes").append(validationmsg);
+                                                } else {
 
-                                                    } else {
+                                                    //no validation issue
 
-                                                        //no validation issue
 
+                                                    for (r = 0; r < studentratings.length - 1; r++) {
 
-                                                        for (r = 0; r < studentratings.length - 1; r++) {
+                                                        //split each rating at the comma
 
-                                                            //split each rating at the comma
+                                                        ratingdetail = studentratings[r].split("^");
 
-                                                            ratingdetail = studentratings[r].split("^");
+                                                        //console.log(ratingdetail);
 
-                                                            //console.log(ratingdetail);
+                                                        //get existing value in field
 
-                                                            //get existing value in field
+                                                        existing = parseFloat($("#" + ratingdetail[0]).text());
 
-                                                            existing = parseFloat($("#" + ratingdetail[0]).text());
+                                                        //add this rating and update
+                                                        existing += parseFloat(ratingdetail[1]);
 
-                                                            //add this rating and update
-                                                            existing += parseFloat(ratingdetail[1]);
+                                                        $("#" + ratingdetail[0]).text(existing.toFixed(2));
+                                                        
 
-                                                            $("#" + ratingdetail[0]).text(existing.toFixed(2));
-                                                            
+                                                        //split it again at the - to get the student ID
 
-                                                            //split it again at the - to get the student ID
+                                                        tmpsplit = ratingdetail[0].split("-");
 
-                                                            tmpsplit = ratingdetail[0].split("-");
+                                                        if (tmpsplit[1] != prevstudent) {
 
-                                                            if (tmpsplit[1] != prevstudent) {
 
+                                                            existingratings = parseInt($("#ratings-" + tmpsplit[1]).text());
+                                                            $("#ratings-" + tmpsplit[1]).text(existingratings + 1);
 
-                                                                existingratings = parseInt($("#ratings-" + tmpsplit[1]).text());
-                                                                $("#ratings-" + tmpsplit[1]).text(existingratings + 1);
+                                                            existingratings++
+                                                        }
 
-                                                                existingratings++
-                                                            }
 
 
+                                                        //responses table
+                                                        //is there a table row for for the current voter (submissions[s].Entity.EntityId) and student (tmpsplit[1])?
 
-                                                            //responses table
-                                                            //is there a table row for for the current voter (submissions[s].Entity.EntityId) and student (tmpsplit[1])?
 
+                                                        if (document.getElementById("responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1])) {
+                                                            //console.log("exists");
+                                                        } else {
 
-                                                            if (document.getElementById("responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1])) {
-                                                                //console.log("exists");
-                                                            } else {
 
+                                                            votername = classlist[submissions[s].Entity.EntityId].DisplayName;
+                                                            recipientname = classlist[tmpsplit[1]].DisplayName;
 
-                                                                votername = getstudentname(submissions[s].Entity.EntityId);
-                                                                recipientname = getstudentname(tmpsplit[1]);
 
+                                                            $("#votestablebody").append("<tr id=\"responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "\"><td>" + votername + "</td><td>" + recipientname + "</td></tr>");
 
-                                                                $("#votestablebody").append("<tr id=\"responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "\"><td>" + votername + "</td><td>" + recipientname + "</td></tr>");
-
-
-                                                                for (q = 1; q < questions.length; q++) {
-                                                                    $("#responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1]).append("<td><span id=\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-q" + q + "\" ></span></td>");
-
-
-                                                                } //end for q
-
-                                                                if (commentfields == true) {
-                                                                    //	$("#responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1]).append("<td><textarea style=\"width:100%\" id=\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-Comment" + "\" class=\"response-recipient-"+tmpsplit[1]+" commentbox\" aria-label=\"Comment from "+ votername +" about "+ recipientname +"\" disabled></textarea></td>");
-
-                                                                    $("#responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1]).append("<td id=\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-Comment" + "\"  class=\"response-recipient-" + tmpsplit[1] + " commentbox\"></td><td><input type=\"button\" class=\"editbutton\" style=\"display:none\" onclick='editcomment(\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-Comment" + "\")' value=\"Edit Comment\" /></td>");
-
-
-
-
-
-                                                                }
-
-
-
-
-
-                                                            }
-
-
-                                                            //Note: tmpsplit[0] is the question ID or "Comment"
-
-                                                            //update the score row
-                                                            let responseField = $("#response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-" + tmpsplit[0]);
-
-                                                            if(responseField.length != 0){
-                                                                responseField.html(ratingdetail[1]);
-                                                                //resize the textarea
-                                                                responseField.height(responseField[0].scrollHeight);
-                                                            }
-
-                                                            //$("#votestablebody").append(baseresponse+"<td>"+getstudentname(tmpsplit[1])+"</td><td>"+tmpsplit[0]+"</td><td>"+ratingdetail[1]+"</td>");
-
-
-
-                                                            //work out percentage
-
-                                                            if (existingratings > 0) {
-                                                                pcscore = parseFloat(existing / existingratings).toFixed(2);
-                                                                $("#p" + ratingdetail[0]).text(pcscore);
-
-
-                                                            }
-                                                            prevstudent = tmpsplit[1]
-
-
-
-                                                            //update total score
-                                                            let newtotal = 0;
 
                                                             for (q = 1; q < questions.length; q++) {
-                                                                //console.log(tmpsplit[1]);
+                                                                $("#responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1]).append("<td><span id=\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-q" + q + "\" ></span></td>");
 
-                                                                newtotal = newtotal + parseFloat($("#q" + q + "-" + tmpsplit[1]).text());
-                                                                //console.log(newtotal);
+
                                                             } //end for q
 
+                                                            if (commentfields == true) {
+                                                                //	$("#responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1]).append("<td><textarea style=\"width:100%\" id=\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-Comment" + "\" class=\"response-recipient-"+tmpsplit[1]+" commentbox\" aria-label=\"Comment from "+ votername +" about "+ recipientname +"\" disabled></textarea></td>");
 
-                                                            //console.log(newtotal + "/" + existingratings + "/" + questions.length);
-
-                                                            let averageScore = ((newtotal / existingratings) / (questions.length - 1)).toFixed(2);
-
-                                                            $("#average-" + tmpsplit[1]).text(averageScore);
-
-                                                        } //end for r
-
-
-                                                    } //end validation errors
-
-                                                } //end for s
-
-
-                                                enabledownload();
-                                                enableexport();
-
-
-                                            } //success submissions
-                                        }) //end ajax submissions										
+                                                                $("#responserow-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1]).append("<td id=\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-Comment" + "\"  class=\"response-recipient-" + tmpsplit[1] + " commentbox\"></td><td><input type=\"button\" class=\"editbutton\" style=\"display:none\" onclick='editcomment(\"response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-Comment" + "\")' value=\"Edit Comment\" /></td>");
 
 
 
 
-                                    } //end success classlist
-                                }) //end ajax classlist
 
+                                                            }
+
+
+
+
+
+                                                        }
+
+
+                                                        //Note: tmpsplit[0] is the question ID or "Comment"
+
+                                                        //update the score row
+                                                        let responseField = $("#response-" + submissions[s].Entity.EntityId + "-" + tmpsplit[1] + "-" + tmpsplit[0]);
+
+                                                        if(responseField.length != 0){
+                                                            responseField.html(ratingdetail[1]);
+                                                            //resize the textarea
+                                                            responseField.height(responseField[0].scrollHeight);
+                                                        }
+
+                                                        //$("#votestablebody").append(baseresponse+"<td>"+getstudentname(tmpsplit[1])+"</td><td>"+tmpsplit[0]+"</td><td>"+ratingdetail[1]+"</td>");
+
+
+
+                                                        //work out percentage
+
+                                                        if (existingratings > 0) {
+                                                            pcscore = parseFloat(existing / existingratings).toFixed(2);
+                                                            $("#p" + ratingdetail[0]).text(pcscore);
+
+
+                                                        }
+                                                        prevstudent = tmpsplit[1]
+
+
+
+                                                        //update total score
+                                                        let newtotal = 0;
+
+                                                        for (q = 1; q < questions.length; q++) {
+                                                            //console.log(tmpsplit[1]);
+
+                                                            newtotal = newtotal + parseFloat($("#q" + q + "-" + tmpsplit[1]).text());
+                                                            //console.log(newtotal);
+                                                        } //end for q
+
+
+                                                        //console.log(newtotal + "/" + existingratings + "/" + questions.length);
+
+                                                        let averageScore = ((newtotal / existingratings) / (questions.length - 1)).toFixed(2);
+
+                                                        $("#average-" + tmpsplit[1]).text(averageScore);
+
+                                                    } //end for r
+
+
+                                                } //end validation errors
+
+                                            } //end for s
+
+
+                                            enabledownload();
+                                            enableexport();
+
+
+                                        } //success submissions
+                                    
+                                    }); //end ajax submissions										
+
+                                }); //end getClasslist
 
                             } //end if dupe_errors
 
                         } //end if groupresponse length >0
 
                     } // end success groupresponse
-                }) //end ajax grupresponse
+                }); //end ajax grupresponse
 
 
             } //end else {{rolename}}
