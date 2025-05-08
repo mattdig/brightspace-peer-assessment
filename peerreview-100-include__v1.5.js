@@ -545,6 +545,14 @@ getAssignment(assignment).then(assignmentObject => {
 
                                                         tmpsplit = ratingdetail[0].split("-");
 
+
+                                                        // handle students who dropped the class
+                                                        if(!(tmpsplit[1] in classlist)){
+                                                            continue;
+                                                        }
+
+                                                        
+
                                                         if (tmpsplit[1] != prevstudent) {
 
 
